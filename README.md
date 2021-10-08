@@ -1,46 +1,38 @@
 # blockchain-developer-bootcamp-final-project
 
-DCA smart contract
+buyTogether:
 
-The problem:
+The Problem: Crypto is volatile, GAS fees are high, Centralized exchanges is similar to a bank and the reason crypto exists in the first place.
+Solution: An affordable way to buy up crypto with small amounts on a regular(semi-regular) basis.
 
-A lot of people want to get into crypto but the market is so volatile that there is a high risk of having bad timing.
-In tradtional centralized platforms this is a common and very useful feature for users to setup, however its not available in the current DeFi space.
-Solution:
-Using DCA to buy the same amount of ETH/WETH every month for a set period of time through Uniswap with DAI.
+Buying small amounts of crypto on a regular basis costs too much in gas fees its not worth it,
+by pooling together with others so the small purchases becomes big ones, users can save a lot on gas fees and also, instead of 100 people remembering to
+make 100 transactions every month, 1 user can do it for all 100.
 
-This project will be a DCA(Dollar Cost Average, https://en.wikipedia.org/wiki/Dollar_cost_averaging ) smart contract to purchase WETH with DAI, with the same chosen amount every month until specified end date.
 
-DAI -> WETH
 
-User flow:
+1. Alice deposit DAI to their connected wallet through metamask
+2. Smart contract updates the total dai deposited and makes note of how much Alice deposited
+3. Owner triggers a function that converts a small amount deposited DAI to WETH that only owner can trigger.
+5. Alice decides to withdraw ALL the current WETH she got right to, 
+6. totalDAI deposited updates as well as the DAIdeposited Alice have put in 
+7. claimable WETH for Alice goes to 0
+8. Owner triggers a function that converts a small amount deposited DAI to WETH that only owner can trigger.
+9. Alice claimable WETH goes up again but this time the % of the total weth bought is less because she already cashed out once and smaller % of the pool!
 
-1. User choose a Wallet where the DAI will be taken from and used to pull WETH with
-2. User specify end date
-3. User specify amount to be purchased on each conversion once a month.
-4. smart contract calculate the total amount of DAI to be taken, based on end date and specified amount for each conversion.
-5. User approve total amount of DAI to be withdrawn by smart contract
-6. User transfers the total amount to smart contract from wallet
-7. There will be a list of Users, for each user there will be monthly purchase amount, deposited DAI, wallet address and end date.
-8. If monthly purchase amount > 0 && deposited DAI >= monthly purchase amount, the monthly purchase amount gets added together with the rest of monthly purchases from other users amounts to a single sum for all DAI to be converted to WETH this month.
-9. WETH gets into the smart contract with an array with objects which each include an amount and address the amount belongs to.
-10. Users can then call the smart contract and pull their WETH as well as cancel to pull their remaining DAI .
 
-Alternative flow (pulling approved DAI from user wallets instead of having users send them):
-User flow:
 
-1. User choose a Wallet where the DAI will be taken from and used to pull WETH with
-2. User specify end date
-3. User specify amount to be purchased on each conversion once a month.
-4. smart contract calculate the total amount of DAI to be taken, based on end date and specified amount for each conversion.
-5. User approve total amount of DAI to be withdrawn by smart contract
-6. For each user, there will be a list of monthly purchase amounts, wallets and end date.
-7. If purchase amount > 0, allowed spending is >= purchase amount, and DAI in wallet > allowed spending, the purchase amount gets added together with the rest of monthly purchase amounts to a single sum for all DAI to be converted to WETH this month.
-8. WETH gets into the smart contract with an array with objects which each include an amount and address the amount belongs to.
-9. Users can then call the smart contract and pull their WETH .
+Future:
+implement a check so the owner cant do too many frequent conversion
+add all users to the owner multisig so any user can trigger a conversion (if its not too soon!)
 
-First version, basic MVP with a smart contract that only supports 1 user.
 
-1. Smart contract will be deployed manually, the parameters needed will be collected from a simple contact form.
-2. User will be notified via email manually when the smart contract is available.
-3. User will be able to specify the address deployed smart contract into a frontend in order to see: How much WETH has been purchased and have the option to PULL the WETH out of it.
+Create a incentivised mechanism for users to manage and trigger the conversion on a regular basis
+
+To protect if the owner dies:
+Implement a fail-safe so if the Owner have not converted for serious long time (store blocktime of each conversion and compare it with current when trigger), any user can trigger a convertALLDAI function so all users can convert. Or simply create a votefunction so if enough users vote to convertALL, it converts!
+Can also be useful if ETH crashes in value and all users want to buy for everything at once.
+
+
+
+Implement chainlink oracle to do this on a regular basis instead of relying on a owner that does this. 
