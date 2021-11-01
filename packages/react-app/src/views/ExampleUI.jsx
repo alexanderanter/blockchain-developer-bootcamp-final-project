@@ -161,7 +161,14 @@ export default function ExampleUI({
         mainnetProvider={mainnetProvider}
         startBlock={1}
       />
-
+      <Events
+        contracts={readContracts}
+        contractName="YourContract"
+        eventName="SetPurpose"
+        localProvider={localProvider}
+        mainnetProvider={mainnetProvider}
+        startBlock={1}
+      />
       <div style={{ width: 600, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
         <Card>
           Check out all the{" "}
