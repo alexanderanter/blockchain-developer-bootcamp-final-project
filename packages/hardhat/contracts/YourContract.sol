@@ -30,6 +30,7 @@ contract YourContract is Ownable {
   uint256 public totalWeth;
   uint256 public amountToConvert;
 
+
   constructor() {
     //set the owner to a different address than the deploy wallet
    transferOwnership(0x0c9A1E4a543618706D31F33b643aba10E0D9048e);
@@ -49,11 +50,25 @@ contract YourContract is Ownable {
   // }
 
   function withdraw() public onlyOwner {
+
       (bool success, ) = msg.sender.call{value: address(this).balance}("");
       require( success, "FAILED");
-      openForExchange = false;
+      
+      totalWeth = totalWeth - address(this).balance;
+    
+
+        //if transfer success
+      uint usedDaii = usedDai[msg.sender];
+      uint newDaiBalance = balances[msg.sender] - usedDaii;
+
+      usedDai[msg.sender] = 0;
+      //remove the DAI that alice already used up when withdrawing
+      balances[msg.sender] = newDaiBalance;
+      // reset the wethclaimable to 0 as Alice withdrawn all
+      wethClaimable[msg.sender] = 0;
+
+          
       emit Withdraw(msg.sender, balances[msg.sender]);
-      balances[msg.sender] = 1;
     
   }
 
@@ -70,11 +85,11 @@ contract YourContract is Ownable {
 
       emit Stake(msg.sender, msg.value);
       openForExchange = true;
-
+      totalDai += msg.value;
 
 
       //todo remove test!
-      exchange(5);
+     // exchange(5);
 
       
       return balances[msg.sender];
@@ -109,9 +124,19 @@ contract YourContract is Ownable {
   }
 
 
-  function updateClaim(address user) public {
+  function updateClaim(address user) public returns(uint) {
 
     console.log(user, "user");
+    uint daiBalance = balances[user];
+    console.log(daiBalance, "daibalance ");
+
+    uint spentDai = (daiBalance / totalDai) * totalConvertedDai;
+
+    usedDai[msg.sender] += spentDai;
+
+    uint claimableWeth = (spentDai / totalConvertedDai) * totalWeth;
+    wethClaimable[msg.sender] = claimableWeth;
+    return claimableWeth;
   } 
 
   //todo write a new private function that can be trigged from either owner or public that makes the exchange
