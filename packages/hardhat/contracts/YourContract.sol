@@ -130,6 +130,9 @@ contract YourContract is Ownable {
 
   function exchange(uint amount) public onlyOwner {
     
+    //todo add functionality for uniswap trade
+
+    //dummy conversion
     uint wethToAdd = amount / 5;
     //require( success, "FAILED");
     
