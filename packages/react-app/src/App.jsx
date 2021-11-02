@@ -70,7 +70,7 @@ const scaffoldEthProvider = navigator.onLine
   : null;
 const poktMainnetProvider = navigator.onLine
   ? new ethers.providers.StaticJsonRpcProvider(
-      "https://eth-mainnet.gateway.pokt.network/v1/lb/611156b4a585a20035148406",
+      "https://eth-mainnet.gateway.pokt.network/v1/lb/61804db97335c80036028784",
     )
   : null;
 const mainnetInfura = navigator.onLine

@@ -3,9 +3,14 @@ pragma solidity >=0.6.7;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol"; //https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
+// import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
 
 contract YourContract is Ownable {
 
+  using SafeMath for uint256;
+ 
     //specify owner, maybe not necessary?
   // address public myOwner = 0x0c9A1E4a543618706D31F33b643aba10E0D9048e;
   uint256 public deadline = block.timestamp + 30 seconds;
@@ -13,6 +18,7 @@ contract YourContract is Ownable {
   //declare variable to decide if Exchange is available or not
   bool public openForExchange;
 
+  //declare array to store user addresses and be able to iterate through users
   address[] public addressIndexes;
 
   //refactor to a structuser instead with only 1 mapping https://github.com/bernardpeh/solidity-loop-addresses-demo/blob/master/loop-demo.sol https://bitbucket.org/rhitchens2/soliditycrud/src/master/
@@ -42,12 +48,21 @@ contract YourContract is Ownable {
   }
 
 
+  function percent(uint numerator, uint denominator, uint precision) public returns(uint quotient) {
 
-  // function transfer(address to, uint256 amount) public {
-  //   require( balances[msg.sender] >= amount, "NOT ENOUGH");
-  //   balances[msg.sender] -= amount;
-  //   balances[to] += amount;
-  // }
+         // caution, check safe-to-multiply here
+        uint _numerator  = numerator * 10 ** (precision+1);
+        // with rounding of last digit
+        uint _quotient =  ((_numerator / denominator) + 5) / 10;
+        return ( _quotient);
+  }
+
+
+  function transfer(address to, uint256 amount) public {
+    require( balances[msg.sender] >= amount, "NOT ENOUGH");
+    balances[msg.sender] -= amount;
+    balances[to] += amount;
+  }
 
   function withdraw() public onlyOwner {
 
@@ -118,28 +133,57 @@ contract YourContract is Ownable {
 
     //loop through and update all users claimable eth
     for (uint i=0; i < addressIndexes.length; i++) {
+      console.log(addressIndexes[i], "updating" );
         updateClaim(addressIndexes[i]);
      }
 
   }
 
 
-  function updateClaim(address user) public returns(uint) {
 
-    console.log(user, "user");
-    uint daiBalance = balances[user];
-    console.log(daiBalance, "daibalance ");
+function updateClaim(address user) public returns(uint) {
 
-    uint spentDai = (daiBalance / totalDai) * totalConvertedDai;
+  console.log(user, "user");
 
-    usedDai[msg.sender] += spentDai;
+  uint daiBalance = balances[user];
 
-    uint claimableWeth = (spentDai / totalConvertedDai) * totalWeth;
-    wethClaimable[msg.sender] = claimableWeth;
-    return claimableWeth;
-  } 
+  console.log(daiBalance, "daibalance ");
+  console.log(totalDai, "totalDai");
+  console.log(totalConvertedDai, "totalConvertedDai");
+  
+  
+  // uint spentDai = (daiBalance / totalDai) * totalConvertedDai;
 
-  //todo write a new private function that can be trigged from either owner or public that makes the exchange
+  uint spentDai = percent(daiBalance,totalDai,3) * totalConvertedDai;
+
+  console.log(spentDai, "spentDai ");
+  usedDai[user] += spentDai;
+
+
+  // uint claimableWeth = (spentDai / totalConvertedDai) * totalWeth;
+
+  uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
+  console.log(percentageOfPool, "percent");
+  uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
+
+  console.log(claimableWeth, "claimableWeth1");
+
+  claimableWeth = claimableWeth / 10000000000000000000;
+  console.log(claimableWeth, "claimableWeth");
+  wethClaimable[user] = claimableWeth;
+  return claimableWeth;
+} 
+
+  //   uint claimableWeth = (spentDai / totalConvertedDai) * totalWeth;
+
+
+    uint256 public  a = 300;
+    uint256 public  b = 1000;
+    uint256 public counter = percent(a,b,3);
+   
+    uint256 public testyy = counter * 200 * 10000000000000;
+
+  //todo write a new sprivate function that can be trigged from either owner or public that makes the exchange
   
 
 
