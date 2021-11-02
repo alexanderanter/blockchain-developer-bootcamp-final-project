@@ -64,17 +64,23 @@ contract YourContract is Ownable {
     balances[to] += amount;
   }
 
-  function withdraw() public onlyOwner {
+  function withdraw() public {
 
       (bool success, ) = msg.sender.call{value: address(this).balance}("");
       require( success, "FAILED");
-      
-      totalWeth = totalWeth - address(this).balance;
-    
+      console.log( totalWeth, "totalWeth1");
+      console.log( wethClaimable[msg.sender], "wethToClaim");
+      totalWeth = totalWeth - wethClaimable[msg.sender];
+      console.log( totalWeth, "totalWeth2");
 
+
+      console.log( usedDai[msg.sender], "useddaui1");
+      console.log( balances[msg.sender], "balances");
         //if transfer success
       uint usedDaii = usedDai[msg.sender];
+      console.log( usedDaii, "usedDai");
       uint newDaiBalance = balances[msg.sender] - usedDaii;
+      console.log( newDaiBalance, "newDai");
 
       usedDai[msg.sender] = 0;
       //remove the DAI that alice already used up when withdrawing
@@ -152,22 +158,17 @@ function updateClaim(address user) public returns(uint) {
   console.log(totalConvertedDai, "totalConvertedDai");
   
   
-  // uint spentDai = (daiBalance / totalDai) * totalConvertedDai;
+
 
   uint spentDai = percent(daiBalance,totalDai,3) * totalConvertedDai;
 
   console.log(spentDai, "spentDai ");
-  usedDai[user] += spentDai;
-
-
-  // uint claimableWeth = (spentDai / totalConvertedDai) * totalWeth;
+  usedDai[user] += spentDai / 1000;
 
   uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
   console.log(percentageOfPool, "percent");
   uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
-
   console.log(claimableWeth, "claimableWeth1");
-
   claimableWeth = claimableWeth / 10000000000000000000;
   console.log(claimableWeth, "claimableWeth");
   wethClaimable[user] = claimableWeth;
