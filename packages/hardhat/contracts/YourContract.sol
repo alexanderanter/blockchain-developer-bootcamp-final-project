@@ -174,28 +174,11 @@ function updateClaim(address user) public returns(uint) {
   return claimableWeth;
 } 
 
-  //   uint claimableWeth = (spentDai / totalConvertedDai) * totalWeth;
 
-
-    uint256 public  a = 300;
-    uint256 public  b = 1000;
-    uint256 public counter = percent(a,b,3);
-   
-    uint256 public testyy = counter * 200 * 10000000000000;
 
   //todo write a new sprivate function that can be trigged from either owner or public that makes the exchange
   
 
-
-    // string public purpose = "Building Unstoppable Appps!!x";
-  // event SetPurpose(address sender, string purpose);
-  // function setPurpose(string memory newPurpose) public payable {
-
-  
-  //     purpose = newPurpose;
-  //     console.log(msg.sender,"set purpose to",purpose);
-  //     emit SetPurpose(msg.sender, purpose);
-  // }
 
 
 }
