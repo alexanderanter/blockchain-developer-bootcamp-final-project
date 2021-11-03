@@ -66,7 +66,7 @@ contract YourContract is Ownable {
 
   function withdraw() public {
 
-      (bool success, ) = msg.sender.call{value: address(this).balance}("");
+      (bool success, ) = msg.sender.call{value: wethClaimable[msg.sender]}("");
       require( success, "FAILED");
       console.log( totalWeth, "totalWeth1");
       console.log( wethClaimable[msg.sender], "wethToClaim");
@@ -92,6 +92,16 @@ contract YourContract is Ownable {
       emit Withdraw(msg.sender, balances[msg.sender]);
     
   }
+
+//emergencyfunction that lets the owner of smartcontract to withdraw all the ETH at once
+  function withdrawAll() public onlyOwner {
+
+    (bool success, ) = msg.sender.call{value: address(this).balance}("");
+    require( success, "FAILED");
+
+    emit Withdraw(msg.sender, balances[msg.sender]);
+  
+}
 
   function stake() public payable returns (uint) {
       balances[msg.sender] += msg.value;
@@ -129,7 +139,7 @@ contract YourContract is Ownable {
   }
 
   function exchange(uint amount) public onlyOwner {
-    
+    require(amount >= totalDai, "not enough staked");
     //todo add functionality for uniswap trade
 
     //dummy conversion
@@ -145,6 +155,9 @@ contract YourContract is Ownable {
       console.log(addressIndexes[i], "updating" );
         updateClaim(addressIndexes[i]);
      }
+
+     //remove the converted DAI from the total available
+     totalDai -= amount;
 
   }
 
