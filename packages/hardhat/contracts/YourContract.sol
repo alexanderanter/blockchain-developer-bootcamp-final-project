@@ -31,11 +31,12 @@ contract YourContract is Ownable {
   event Stake(address accountAddress, uint256 amount);
   event Withdraw(address accountAddress, uint256 amount);
 
+  //Total deposited funds available for conversion
   uint256 public totalDai;
+  //Total funds thats been converted
   uint256 public totalConvertedDai;
+  //Total funds thats available for withdrawal
   uint256 public totalWeth;
-  uint256 public amountToConvert;
-
 
   constructor() {
     //set the owner to a different address than the deploy wallet
@@ -132,15 +133,23 @@ contract YourContract is Ownable {
     }
 
 
+
+    // backup function in case Owner would die or never exchange deposited funds.
   function exchangeTrigger() public {
-      require(block.timestamp >= deadline, "not enough time");
+      require(timeLeft() == 0, "not enough time");
+      //make sure that something has been staked so its open for exchange
       require(openForExchange == true, "not open for exchange" );
+      convert(address(this).balance);
 
   }
-
+  //Owner can trig this whenever,
   function exchange(uint amount) public onlyOwner {
-    require(amount >= totalDai, "not enough staked");
+    require(amount <= totalDai, "not enough staked");
     //todo add functionality for uniswap trade
+    convert(amount);
+  }
+
+  function convert(uint amount) private {
 
     //dummy conversion
     uint wethToAdd = amount / 5;
@@ -158,7 +167,6 @@ contract YourContract is Ownable {
 
      //remove the converted DAI from the total available
      totalDai -= amount;
-
   }
 
 
