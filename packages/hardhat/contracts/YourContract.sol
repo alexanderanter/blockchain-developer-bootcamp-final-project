@@ -112,30 +112,25 @@ contract YourContract is Ownable {
         existingUser[msg.sender] = true;
         addressIndexes.push(msg.sender);
       }
-  
 
-
-      emit Stake(msg.sender, msg.value);
+      //Make it possible to exchange
       openForExchange = true;
       totalDai += msg.value;
 
+      emit Stake(msg.sender, msg.value);
 
-      //todo remove test!
-     // exchange(5);
-
-      
       return balances[msg.sender];
     }
 
     function timeLeft() public view returns(uint256) {
-      // check if now got a bigger timestamp than the deadline, if yes then 0 timeleft,if not return the remaining time.
+      // check the timeleft which is used to allow anyone to exchange all funds at once in case something happens to owner
       return block.timestamp > deadline ? 0 : deadline - block.timestamp;
     }
 
 
 
     // backup function in case Owner would die or never exchange deposited funds.
-  function exchangeTrigger() public {
+  function exchangeAll() public {
       require(timeLeft() == 0, "not enough time");
       //make sure that something has been staked so its open for exchange
       require(openForExchange == true, "not open for exchange" );
