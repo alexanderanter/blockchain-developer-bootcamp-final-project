@@ -1,15 +1,8 @@
+import Portis from "@portis/web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-//import Torus from "@toruslabs/torus-embed"
-import WalletLink from "walletlink";
-import { Alert, Button, Col, Menu, Row } from "antd";
+import { Alert, Button, Card, Col, Divider, Input, List, Menu, Row } from "antd";
 import "antd/dist/antd.css";
-import React, { useCallback, useEffect, useState } from "react";
-import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
-import Web3Modal from "web3modal";
-import "./App.css";
-import { Account, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
-import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
-import { Transactor } from "./helpers";
+import Authereum from "authereum";
 import {
   useBalance,
   useContractLoader,
@@ -19,24 +12,39 @@ import {
   useUserProviderAndSigner,
 } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
-// import Hints from "./Hints";
-import { ExampleUI, Hints, Subgraph } from "./views";
+import { useEventListener } from "eth-hooks/events/useEventListener";
+import Fortmatic from "fortmatic";
+import React, { useCallback, useEffect, useState } from "react";
+import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
+//import Torus from "@toruslabs/torus-embed"
+import WalletLink from "walletlink";
+import Web3Modal from "web3modal";
+import "./App.css";
+import {
+  Account,
+  Address,
+  AddressInput,
+  Balance,
+  Contract,
+  Faucet,
+  GasGauge,
+  Header,
+  Ramp,
+  ThemeSwitch,
+} from "./components";
+import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
+import { Transactor } from "./helpers";
 
 // contracts
-import deployedContracts from "./contracts/hardhat_contracts.json";
 import externalContracts from "./contracts/external_contracts";
-
-import { useContractConfig } from "./hooks";
-import Portis from "@portis/web3";
-import Fortmatic from "fortmatic";
-import Authereum from "authereum";
+import deployedContracts from "./contracts/hardhat_contracts.json";
 
 const { ethers } = require("ethers");
 /*
     Welcome to 🏗 scaffold-eth !
 
     Code:
-    https://github.com/scaffold-eth/scaffold-eth
+    https://github.com/austintgriffith/scaffold-eth
 
     Support:
     https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
@@ -70,13 +78,14 @@ const scaffoldEthProvider = navigator.onLine
   : null;
 const poktMainnetProvider = navigator.onLine
   ? new ethers.providers.StaticJsonRpcProvider(
-      "https://eth-mainnet.gateway.pokt.network/v1/lb/61804db97335c80036028784",
+      "https://eth-mainnet.gateway.pokt.network/v1/lb/611156b4a585a20035148406",
     )
   : null;
 const mainnetInfura = navigator.onLine
   ? new ethers.providers.StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
   : null;
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_ID
+
 // 🏠 Your local provider is usually pointed at your local blockchain
 const localProviderUrl = targetNetwork.rpcUrl;
 // as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
@@ -223,8 +232,6 @@ function App(props) {
   // Just plug in different 🛰 providers to get your balance on different chains:
   const yourMainnetBalance = useBalance(mainnetProvider, address);
 
-  // const contractConfig = useContractConfig();
-
   const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: externalContracts || {} };
 
   // Load in your local 📝 contract and read a value from it:
@@ -248,8 +255,38 @@ function App(props) {
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
   ]);
 
-  // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(readContracts, "YourContract", "purpose");
+  const vendorAddress = readContracts && readContracts.Vendor && readContracts.Vendor.address;
+
+  const vendorETHBalance = useBalance(localProvider, vendorAddress);
+  if (DEBUG) console.log("💵 vendorETHBalance", vendorETHBalance ? ethers.utils.formatEther(vendorETHBalance) : "...");
+
+  const vendorTokenBalance = useContractReader(readContracts, "YourToken", "balanceOf", [vendorAddress]);
+  console.log("🏵 vendorTokenBalance:", vendorTokenBalance ? ethers.utils.formatEther(vendorTokenBalance) : "...");
+
+  const yourTokenBalance = useContractReader(readContracts, "YourToken", "balanceOf", [address]);
+  console.log("🏵 yourTokenBalance:", yourTokenBalance ? ethers.utils.formatEther(yourTokenBalance) : "...");
+
+  const tokensPerEth = useContractReader(readContracts, "Vendor", "tokensPerEth");
+  console.log("🏦 tokensPerEth:", tokensPerEth ? tokensPerEth.toString() : "...");
+
+  // const complete = useContractReader(readContracts,"ExampleExternalContract", "completed")
+  // console.log("✅ complete:",complete)
+  //
+  // const exampleExternalContractBalance = useBalance(localProvider, readContracts && readContracts.ExampleExternalContract.address);
+  // if(DEBUG) console.log("💵 exampleExternalContractBalance", exampleExternalContractBalance )
+
+  // let completeDisplay = ""
+  // if(false){
+  //   completeDisplay = (
+  //     <div style={{padding:64, backgroundColor:"#eeffef", fontWeight:"bolder"}}>
+  //       🚀 🎖 👩‍🚀  -  Staking App triggered `ExampleExternalContract` -- 🎉  🍾   🎊
+  //       <Balance
+  //         balance={0}
+  //         fontSize={64}
+  //       /> ETH staked!
+  //     </div>
+  //   )
+  // }
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -430,13 +467,69 @@ function App(props) {
           onClick={() => {
             faucetTx({
               to: address,
-              value: ethers.utils.parseEther("0.01"),
+              value: ethers.utils.parseEther("1"),
             });
             setFaucetClicked(true);
           }}
         >
           💰 Grab funds from the faucet ⛽️
         </Button>
+      </div>
+    );
+  }
+
+  const buyTokensEvents = useEventListener(readContracts, "Vendor", "BuyTokens", localProvider, 1);
+  console.log("📟 buyTokensEvents:", buyTokensEvents);
+
+  const [tokenBuyAmount, setTokenBuyAmount] = useState();
+
+  const ethCostToPurchaseTokens =
+    tokenBuyAmount && tokensPerEth && ethers.utils.parseEther("" + tokenBuyAmount / parseFloat(tokensPerEth));
+  console.log("ethCostToPurchaseTokens:", ethCostToPurchaseTokens);
+
+  const [tokenSendToAddress, setTokenSendToAddress] = useState();
+  const [tokenSendAmount, setTokenSendAmount] = useState();
+
+  const [buying, setBuying] = useState();
+
+  let transferDisplay = "";
+  if (yourTokenBalance) {
+    transferDisplay = (
+      <div style={{ padding: 8, marginTop: 32, width: 420, margin: "auto" }}>
+        <Card title="Transfer tokens">
+          <div>
+            <div style={{ padding: 8 }}>
+              <AddressInput
+                ensProvider={mainnetProvider}
+                placeholder="to address"
+                value={tokenSendToAddress}
+                onChange={setTokenSendToAddress}
+              />
+            </div>
+            <div style={{ padding: 8 }}>
+              <Input
+                style={{ textAlign: "center" }}
+                placeholder={"amount of tokens to send"}
+                value={tokenSendAmount}
+                onChange={e => {
+                  setTokenSendAmount(e.target.value);
+                }}
+              />
+            </div>
+          </div>
+          <div style={{ padding: 8 }}>
+            <Button
+              type={"primary"}
+              onClick={() => {
+                tx(
+                  writeContracts.YourToken.transfer(tokenSendToAddress, ethers.utils.parseEther("" + tokenSendAmount)),
+                );
+              }}
+            >
+              Send Tokens
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -455,119 +548,126 @@ function App(props) {
               }}
               to="/"
             >
-              YourContract
+              YourToken
             </Link>
           </Menu.Item>
-          <Menu.Item key="/hints">
+          <Menu.Item key="/contracts">
             <Link
               onClick={() => {
-                setRoute("/hints");
+                setRoute("/contracts");
               }}
-              to="/hints"
+              to="/contracts"
             >
-              Hints
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/exampleui">
-            <Link
-              onClick={() => {
-                setRoute("/exampleui");
-              }}
-              to="/exampleui"
-            >
-              ExampleUI
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/mainnetdai">
-            <Link
-              onClick={() => {
-                setRoute("/mainnetdai");
-              }}
-              to="/mainnetdai"
-            >
-              Mainnet DAI
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/subgraph">
-            <Link
-              onClick={() => {
-                setRoute("/subgraph");
-              }}
-              to="/subgraph"
-            >
-              Subgraph
+              Debug Contracts
             </Link>
           </Menu.Item>
         </Menu>
 
         <Switch>
           <Route exact path="/">
+            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+              <Card title="Your Tokens" extra={<a href="#">code</a>}>
+                <div style={{ padding: 8 }}>
+                  <Balance balance={yourTokenBalance} fontSize={64} />
+                </div>
+              </Card>
+            </div>
+            {transferDisplay}
+            <Divider />
+            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+              <Card title="Buy Tokens" extra={<a href="#">code</a>}>
+                <div style={{ padding: 8 }}>{tokensPerEth && tokensPerEth.toNumber()} tokens per ETH</div>
+
+                <div style={{ padding: 8 }}>
+                  <Input
+                    style={{ textAlign: "center" }}
+                    placeholder={"amount of tokens to buy"}
+                    value={tokenBuyAmount}
+                    onChange={e => {
+                      setTokenBuyAmount(e.target.value);
+                    }}
+                  />
+                  <Balance balance={ethCostToPurchaseTokens} dollarMultiplier={price} />
+                </div>
+
+                <div style={{ padding: 8 }}>
+                  <Button
+                    type={"primary"}
+                    loading={buying}
+                    onClick={async () => {
+                      setBuying(true);
+                      await tx(writeContracts.Vendor.buyTokens({ value: ethCostToPurchaseTokens }));
+                      setBuying(false);
+                    }}
+                  >
+                    Buy Tokens
+                  </Button>
+                </div>
+              </Card>
+            </div>
+
+            <div style={{ padding: 8, marginTop: 32 }}>
+              <div>Vendor Token Balance:</div>
+              <Balance balance={vendorTokenBalance} fontSize={64} />
+            </div>
+
+            <div style={{ padding: 8 }}>
+              <div>Vendor ETH Balance:</div>
+              <Balance balance={vendorETHBalance} fontSize={64} /> ETH
+            </div>
+
+            <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
+              <div>Buy Token Events:</div>
+              <List
+                dataSource={buyTokensEvents}
+                renderItem={item => {
+                  return (
+                    <List.Item key={item.blockNumber + item.blockHash}>
+                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> paid
+                      <Balance balance={item.args[1]} />
+                      ETH to get
+                      <Balance balance={item.args[2]} />
+                      Tokens
+                    </List.Item>
+                  );
+                }}
+              />
+            </div>
+
             {/*
+
+
+
                 🎛 this scaffolding is full of commonly used components
                 this <Contract/> component will automatically parse your ABI
                 and give you a form to interact with it locally
-            */}
 
             <Contract
               name="YourContract"
-              price={price}
               signer={userSigner}
               provider={localProvider}
               address={address}
               blockExplorer={blockExplorer}
               contractConfig={contractConfig}
             />
-          </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
-            />
-          </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
-              userSigner={userSigner}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
-              price={price}
-              tx={tx}
-              writeContracts={writeContracts}
-              readContracts={readContracts}
-              purpose={purpose}
-            />
-          </Route>
-          <Route path="/mainnetdai">
-            <Contract
-              name="DAI"
-              customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.DAI}
-              signer={userSigner}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-              contractConfig={contractConfig}
-              chainId={1}
-            />
-            {/*
-            <Contract
-              name="UNI"
-              customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.UNI}
-              signer={userSigner}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-            />
             */}
           </Route>
-          <Route path="/subgraph">
-            <Subgraph
-              subgraphUri={props.subgraphUri}
-              tx={tx}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
+          <Route path="/contracts">
+            <Contract
+              name="Vendor"
+              signer={userSigner}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              contractConfig={contractConfig}
+            />
+            <Contract
+              name="YourToken"
+              signer={userSigner}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+              contractConfig={contractConfig}
             />
           </Route>
         </Switch>
@@ -589,6 +689,20 @@ function App(props) {
           blockExplorer={blockExplorer}
         />
         {faucetHint}
+      </div>
+
+      <div style={{ marginTop: 32, opacity: 0.5 }}>
+        Created by <Address value={"Your...address"} ensProvider={mainnetProvider} fontSize={16} />
+      </div>
+
+      <div style={{ marginTop: 32, paddingBottom: 128, opacity: 0.5 }}>
+        <a
+          target="_blank"
+          style={{ padding: 32, color: "#000" }}
+          href="https://github.com/austintgriffith/scaffold-eth"
+        >
+          🍴 Fork me!
+        </a>
       </div>
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}

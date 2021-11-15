@@ -45,7 +45,7 @@ coverage
 # production
 build
 
-# Hardhat files
+#Hardhat files
 cache
 artifacts
 
@@ -64,6 +64,3 @@ yarn-error.log*
 .netlify
 *.tsbuildinfo
 *.stackdump
-
-# doc directory
-/doc

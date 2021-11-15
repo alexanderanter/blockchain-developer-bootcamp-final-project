@@ -17,18 +17,21 @@ const R = require("ramda");
 \_______)   )_(   (_______)|/
 
 This deploy script is no longer in use, but is left for reference purposes!
-
-scaffold-eth now uses hardhat-deploy to manage deployments, see the /deploy folder
-And learn more here: https://www.npmjs.com/package/hardhat-deploy
-
 */
+  const yourToken = await deploy("YourToken")
 
-const main = async () => {
-  console.log("\n\n 📡 Deploying...\n");
+  //Todo: deploy the vendor
+  //const vendor = await deploy("Vendor",[ yourToken.address ])
 
-  const yourContract = await deploy("YourContract"); // <-- add in constructor args like line 19 vvvv
-  // use for local token bridging
-  // const mockToken = await deploy("MockERC20") // <-- add in constructor args like line 19 vvvv
+  //console.log("\n 🏵  Sending all 1000 tokens to the vendor...\n");
+  //Todo: transfer the tokens to the vendor
+  //const result = await yourToken.transfer( vendor.address, utils.parseEther("1000") );
+
+  //const stakerContract = await deploy("Staker",[ exampleExternalContract.address ]) // <-- add in constructor args like line 14 ^^^
+
+  //console.log("\n 🤹  Sending ownership to frontend address...\n")
+  //ToDo: change address with your burner wallet address vvvv
+  //await vendor.transferOwnership( "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1" );
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
@@ -59,14 +62,6 @@ const main = async () => {
   const yourContract = await deploy("YourContract", [], {}, {
    LibraryName: **LibraryAddress**
   });
-  */
-
-  //If you want to verify your contract on tenderly.co (see setup details in the scaffold-eth README!)
-  /*
-  await tenderlyVerify(
-    {contractName: "YourContract",
-     contractAddress: yourContract.address
-  })
   */
 
   console.log(
@@ -161,49 +156,8 @@ const readArgsFile = (contractName) => {
 };
 
 function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
-
-// If you want to verify on https://tenderly.co/
-const tenderlyVerify = async ({ contractName, contractAddress }) => {
-  let tenderlyNetworks = [
-    "kovan",
-    "goerli",
-    "mainnet",
-    "rinkeby",
-    "ropsten",
-    "matic",
-    "mumbai",
-    "xDai",
-    "POA",
-  ];
-  let targetNetwork = process.env.HARDHAT_NETWORK || config.defaultNetwork;
-
-  if (tenderlyNetworks.includes(targetNetwork)) {
-    console.log(
-      chalk.blue(
-        ` 📁 Attempting tenderly verification of ${contractName} on ${targetNetwork}`
-      )
-    );
-
-    await tenderly.persistArtifacts({
-      name: contractName,
-      address: contractAddress,
-    });
-
-    let verification = await tenderly.verify({
-      name: contractName,
-      address: contractAddress,
-      network: targetNetwork,
-    });
-
-    return verification;
-  } else {
-    console.log(
-      chalk.grey(` 🧐 Contract verification not supported on ${targetNetwork}`)
-    );
-  }
-};
 
 main()
   .then(() => process.exit(0))

@@ -1,6 +1,6 @@
 import { Card } from "antd";
-import React, { useMemo, useState } from "react";
 import { useContractExistsAtAddress, useContractLoader } from "eth-hooks";
+import React, { useMemo, useState } from "react";
 import Account from "../Account";
 import DisplayVariable from "./DisplayVariable";
 import FunctionForm from "./FunctionForm";
@@ -69,8 +69,8 @@ export default function Contract({
 
   const displayedContractFunctions = useMemo(() => {
     const results = contract
-      ? Object.entries(contract.interface.functions).filter(
-          fn => fn[1]["type"] === "function" && !(show && show.indexOf(fn[1]["name"]) < 0),
+      ? Object.values(contract.interface.functions).filter(
+          fn => fn.type === "function" && !(show && show.indexOf(fn.name) < 0),
         )
       : [];
     return results;
@@ -79,18 +79,18 @@ export default function Contract({
   const [refreshRequired, triggerRefresh] = useState(false);
   const contractDisplay = displayedContractFunctions.map(contractFuncInfo => {
     const contractFunc =
-      contractFuncInfo[1].stateMutability === "view" || contractFuncInfo[1].stateMutability === "pure"
-        ? contract[contractFuncInfo[0]]
-        : contract.connect(signer)[contractFuncInfo[0]];
+      contractFuncInfo.stateMutability === "view" || contractFuncInfo.stateMutability === "pure"
+        ? contract[contractFuncInfo.name]
+        : contract.connect(signer)[contractFuncInfo.name];
 
     if (typeof contractFunc === "function") {
-      if (isQueryable(contractFuncInfo[1])) {
+      if (isQueryable(contractFuncInfo)) {
         // If there are no inputs, just display return value
         return (
           <DisplayVariable
-            key={contractFuncInfo[1].name}
+            key={contractFuncInfo.name}
             contractFunction={contractFunc}
-            functionInfo={contractFuncInfo[1]}
+            functionInfo={contractFuncInfo}
             refreshRequired={refreshRequired}
             triggerRefresh={triggerRefresh}
           />
@@ -100,9 +100,9 @@ export default function Contract({
       // If there are inputs, display a form to allow users to provide these
       return (
         <FunctionForm
-          key={"FF" + contractFuncInfo[0]}
+          key={"FF" + contractFuncInfo.name}
           contractFunction={contractFunc}
-          functionInfo={contractFuncInfo[1]}
+          functionInfo={contractFuncInfo}
           provider={provider}
           gasPrice={gasPrice}
           triggerRefresh={triggerRefresh}
