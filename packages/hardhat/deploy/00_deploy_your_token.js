@@ -2,36 +2,37 @@
 
 const { ethers } = require("hardhat");
 
-const localChainId = "31337";
-
-module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
+module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  const chainId = await getChainId();
-
   await deploy("YourToken", {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    // args: [ "Hello", ethers.utils.parseEther("1.5") ],
+    //args: [ "Hello", ethers.utils.parseEther("1.5") ],
     log: true,
   });
 
-  // Todo: transfer tokens to frontend address
+  //Todo: transfer tokens to frontend address
   const yourToken = await ethers.getContract("YourToken", deployer);
 
-  // const result = await yourToken.transfer("YOUR_FRONT_END_ADDRESS", ethers.utils.parseEther("1000") );
+  await deploy("Vendor", {
+    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
+    from: deployer,
+    args: [yourToken.address],
+    log: true,
+  });
 
-  /*
-    // Getting a previously deployed contract
-    const YourContract = await ethers.getContract("YourContract", deployer);
-    await YourContract.setPurpose("Hello");
+  // Getting a previously deployed contract
+  const vendorContract = await ethers.getContract("Vendor", deployer);
+  const result = await yourToken.transfer(
+    vendorContract.address,
+    ethers.utils.parseEther("1000")
+  );
+  await vendorContract.transferOwnership(
+    "0x1Ca59A8c65C6A008B266B8FD497c5D3ad898F5B6"
+  );
 
-    To take ownership of yourContract using the ownable library uncomment next line and add the
-    address you want to be the owner.
-    // yourContract.transferOwnership(YOUR_ADDRESS_HERE);
-
-    //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
-  */
+  //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
 
   /*
   //If you want to send value to an address from the deployer
@@ -56,15 +57,5 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
    LibraryName: **LibraryAddress**
   });
   */
-
-  // Verify your contracts with Etherscan
-  // You don't want to verify on localhost
-  if (chainId !== localChainId) {
-    await run("verify:verify", {
-      address: yourToken.address,
-      contract: "contracts/YourToken.sol:YourToken",
-      contractArguments: [],
-    });
-  }
 };
 module.exports.tags = ["YourToken"];
