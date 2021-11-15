@@ -5,7 +5,7 @@ import "./YourToken.sol";
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
-contract Vendor is Ownable{
+contract Vendor is Ownable {
   using SafeMath for uint256;
 
   YourToken yourToken;
@@ -70,22 +70,20 @@ contract Vendor is Ownable{
   }
 
   function withdraw() public {
+      console.log(wethClaimable[msg.sender], "CHEEECK IT");
 
+
+      //Transfer ETH from Smart Contract to user
       (bool success, ) = msg.sender.call{value: wethClaimable[msg.sender]}("");
-      require( success, "FAILED");
-      console.log( totalWeth, "totalWeth1");
-      console.log( wethClaimable[msg.sender], "wethToClaim");
+      require( success, "NOT ENOUGH ETH IN SMART CONTRACT, TRY AGAIN LATER");
+
+      emit Withdraw(msg.sender, wethClaimable[msg.sender]);
+
+      //if transfer success
       totalWeth = totalWeth - wethClaimable[msg.sender];
-      console.log( totalWeth, "totalWeth2");
-
-
-      console.log( usedDai[msg.sender], "useddaui1");
-      console.log( balances[msg.sender], "balances");
-        //if transfer success
+  
       uint usedDaii = usedDai[msg.sender];
-      console.log( usedDaii, "usedDai");
       uint newDaiBalance = balances[msg.sender] - usedDaii;
-      console.log( newDaiBalance, "newDai");
 
       usedDai[msg.sender] = 0;
       //remove the DAI that alice already used up when withdrawing
@@ -94,7 +92,6 @@ contract Vendor is Ownable{
       wethClaimable[msg.sender] = 0;
 
           
-      emit Withdraw(msg.sender, balances[msg.sender]);
     
   }
 
@@ -110,7 +107,7 @@ contract Vendor is Ownable{
 
 
 
-    function depositTokens(uint256 amount) public {
+    function depositTokens(uint256 amount) public returns (uint) {
 
       balances[msg.sender] += amount;
       //add user if they don't exist
@@ -234,15 +231,12 @@ function updateClaim(address user) public returns(uint) {
       address recipient,
       uint amount
   ) private {
-      bool sent = token.transferFrom(send er, recipient, amount);
+      bool sent = token.transferFrom(sender, recipient, amount);
       require(sent, "Token transfer failed");
   }
 
-  //   function withdraw() public onlyOwner {
+  function deposit() public payable {}
 
-  //     (bool success, ) = msg.sender.call{value: address(this).balance}("");
-  //     require( success, "FAILED");
 
-    
-  // }
+
 }

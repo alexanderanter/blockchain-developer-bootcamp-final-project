@@ -25,11 +25,11 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   // Getting a previously deployed contract
   const vendorContract = await ethers.getContract("Vendor", deployer);
   const result = await yourToken.transfer(
-    "0x0c9A1E4a543618706D31F33b643aba10E0D9048e",
+    "0xBC42f234b6173A288D91fA0342fF0270Ba376792",
     ethers.utils.parseEther("1000")
   );
   await vendorContract.transferOwnership(
-    "0x0c9A1E4a543618706D31F33b643aba10E0D9048e"
+    "0xBC42f234b6173A288D91fA0342fF0270Ba376792"
   );
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!

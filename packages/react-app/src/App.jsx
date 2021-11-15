@@ -59,10 +59,12 @@ const { ethers } = require("ethers");
     (and then use the `useExternalContractLoader()` hook!)
 */
 
-/// 📡 What chain are your contracts deployed to?
-// const targetNetwork = NETWORKS.rinkeby; //
+/// 📡 What chain are your contracts deployed to
 
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+//uncomment for rinkeby
+const targetNetwork = NETWORKS.rinkeby;
+
+// const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 // 😬 Sorry for all the console logging
 const DEBUG = true;
 const NETWORKCHECK = true;
@@ -273,6 +275,9 @@ function App(props) {
   const allowedTokenBalance = useContractReader(readContracts, "YourToken", "allowance", [address, vendorAddress]);
   console.log("🏵 allowedTokenBalance:", allowedTokenBalance ? ethers.utils.formatEther(allowedTokenBalance) : "...");
 
+  const wethClaimable = useContractReader(readContracts, "Vendor", "wethClaimable", [address]);
+  console.log("🏵 wethClaimable:", wethClaimable ? ethers.utils.formatEther(wethClaimable) : "...");
+
   // const complete = useContractReader(readContracts,"ExampleExternalContract", "completed")
   // console.log("✅ complete:",complete)
   //
@@ -482,8 +487,8 @@ function App(props) {
     );
   }
 
-  const buyTokensEvents = useEventListener(readContracts, "Vendor", "BuyTokens", localProvider, 1);
-  console.log("📟 buyTokensEvents:", buyTokensEvents);
+  const withdrawEvents = useEventListener(readContracts, "Vendor", "Withdraw", localProvider, 1);
+  console.log("📟 withdrawEvents:", withdrawEvents);
 
   const depositTokensEvents = useEventListener(readContracts, "Vendor", "DepositTokens", localProvider, 1);
   console.log("📟 depositTokensEvents:", depositTokensEvents);
@@ -504,7 +509,7 @@ function App(props) {
 
   const [tokenSendAmount, setTokenSendAmount] = useState();
 
-  const [buying, setBuying] = useState();
+  const [withdrawing, setWithdrawing] = useState();
 
   const [depositing, setDepositing] = useState();
 
@@ -512,7 +517,7 @@ function App(props) {
   if (yourTokenBalance) {
     transferDisplay = (
       <div style={{ padding: 8, marginTop: 32, width: 420, margin: "auto" }}>
-        <Card title="Transfer tokens">
+        {/* <Card title="Transfer tokens">
           <div>
             <div style={{ padding: 8 }}>
               <AddressInput
@@ -545,7 +550,7 @@ function App(props) {
               Send Tokens
             </Button>
           </div>
-        </Card>
+        </Card> */}
       </div>
     );
   }
@@ -591,32 +596,22 @@ function App(props) {
             {transferDisplay}
             <Divider />
             <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Buy Tokens" extra={<a href="#">code</a>}>
-                <div style={{ padding: 8 }}>{tokensPerEth && tokensPerEth.toNumber()} tokens per ETH</div>
-
+              <Card title="Withdraw Tokens" extra={<a href="#">code</a>}>
                 <div style={{ padding: 8 }}>
-                  <Input
-                    style={{ textAlign: "center" }}
-                    placeholder={"amount of tokens to buy"}
-                    value={tokenBuyAmount}
-                    onChange={e => {
-                      setTokenBuyAmount(e.target.value);
-                    }}
-                  />
-                  <Balance balance={ethCostToPurchaseTokens} dollarMultiplier={price} />
+                  <Balance balance={wethClaimable} dollarMultiplier={price} />
                 </div>
 
                 <div style={{ padding: 8 }}>
                   <Button
                     type={"primary"}
-                    loading={buying}
+                    loading={withdrawing}
                     onClick={async () => {
-                      setBuying(true);
-                      await tx(writeContracts.Vendor.buyTokens({ value: ethCostToPurchaseTokens }));
-                      setBuying(false);
+                      setWithdrawing(true);
+                      await tx(writeContracts.Vendor.withdraw());
+                      setWithdrawing(false);
                     }}
                   >
-                    Buy Tokens
+                    WithDraw
                   </Button>
                 </div>
               </Card>
@@ -682,17 +677,15 @@ function App(props) {
               <Balance balance={vendorETHBalance} fontSize={64} /> ETH
             </div>
             <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
-              <div>Buy Token Events:</div>
+              <div>Withdraw Token Events:</div>
               <List
-                dataSource={buyTokensEvents}
+                dataSource={withdrawEvents}
                 renderItem={item => {
                   return (
                     <List.Item key={item.blockNumber + item.blockHash}>
-                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> paid
+                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> withdrawed
                       <Balance balance={item.args[1]} />
-                      ETH to get
-                      <Balance balance={item.args[2]} />
-                      Tokens
+                      ETH
                     </List.Item>
                   );
                 }}
