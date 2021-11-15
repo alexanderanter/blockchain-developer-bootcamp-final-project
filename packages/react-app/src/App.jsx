@@ -485,20 +485,20 @@ function App(props) {
   const buyTokensEvents = useEventListener(readContracts, "Vendor", "BuyTokens", localProvider, 1);
   console.log("📟 buyTokensEvents:", buyTokensEvents);
 
-  const sellTokensEvents = useEventListener(readContracts, "Vendor", "SellTokens", localProvider, 1);
-  console.log("📟 sellTokensEvents:", sellTokensEvents);
+  const depositTokensEvents = useEventListener(readContracts, "Vendor", "DepositTokens", localProvider, 1);
+  console.log("📟 depositTokensEvents:", depositTokensEvents);
 
   const [tokenBuyAmount, setTokenBuyAmount] = useState();
 
-  const [tokenSellAmount, setTokenSellAmount] = useState();
+  const [tokenDepositAmount, setTokenDepositAmount] = useState();
 
   const ethCostToPurchaseTokens =
     tokenBuyAmount && tokensPerEth && ethers.utils.parseEther("" + tokenBuyAmount / parseFloat(tokensPerEth));
   console.log("ethCostToPurchaseTokens:", ethCostToPurchaseTokens);
 
-  const ethCostToSellTokens =
-    tokenSellAmount && tokensPerEth && ethers.utils.parseEther("" + tokenSellAmount / parseFloat(tokensPerEth));
-  console.log("ethCostToSellTokens:", ethCostToSellTokens);
+  const ethCostToDepositTokens =
+    tokenDepositAmount && tokensPerEth && ethers.utils.parseEther("" + tokenDepositAmount / parseFloat(tokensPerEth));
+  console.log("ethCostToDepositTokens:", ethCostToDepositTokens);
 
   const [tokenSendToAddress, setTokenSendToAddress] = useState();
 
@@ -506,7 +506,7 @@ function App(props) {
 
   const [buying, setBuying] = useState();
 
-  const [selling, setSelling] = useState();
+  const [depositing, setDepositing] = useState();
 
   let transferDisplay = "";
   if (yourTokenBalance) {
@@ -624,28 +624,28 @@ function App(props) {
 
             <Divider />
             <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Sell Tokens" extra={<a href="#">code</a>}>
+              <Card title="Deposit Tokens" extra={<a href="#">code</a>}>
                 <div style={{ padding: 8 }}>{tokensPerEth && tokensPerEth.toNumber()} tokens per ETH</div>
 
                 <div style={{ padding: 8 }}>
                   <Input
                     style={{ textAlign: "center" }}
                     placeholder={"amount of tokens "}
-                    value={tokenSellAmount}
+                    value={tokenDepositAmount}
                     onChange={e => {
-                      setTokenSellAmount(e.target.value);
+                      setTokenDepositAmount(e.target.value);
                     }}
                   />
-                  <Balance balance={ethCostToSellTokens} dollarMultiplier={price} />
+                  <Balance balance={ethCostToDepositTokens} dollarMultiplier={price} />
                 </div>
 
                 {/* <div style={{ padding: 8 }}>
                   <Button
                     type={"primary"}
-                    loading={selling}
+                    loading={depositing}
                     onClick={async () => {
                       await tx(
-                        writeContracts.YourToken.approve(vendorAddress, ethers.utils.parseEther(tokenSellAmount)),
+                        writeContracts.YourToken.approve(vendorAddress, ethers.utils.parseEther(tokenDepositAmount)),
                       );
                     }}
                   >
@@ -655,20 +655,20 @@ function App(props) {
                 <div style={{ padding: 8 }}>
                   <Button
                     type={"primary"}
-                    loading={selling}
+                    loading={depositing}
                     onClick={async () => {
-                      console.log(tokenSellAmount, allowedTokenBalance);
-                      if (tokenSellAmount >= allowedTokenBalance) {
+                      console.log(tokenDepositAmount, allowedTokenBalance);
+                      if (tokenDepositAmount >= allowedTokenBalance) {
                         await tx(
-                          writeContracts.YourToken.approve(vendorAddress, ethers.utils.parseEther(tokenSellAmount)),
+                          writeContracts.YourToken.approve(vendorAddress, ethers.utils.parseEther(tokenDepositAmount)),
                         );
                       }
-                      setSelling(true);
-                      await tx(writeContracts.Vendor.sellTokens(ethers.utils.parseEther("" + tokenSellAmount)));
-                      setSelling(false);
+                      setDepositing(true);
+                      await tx(writeContracts.Vendor.depositTokens(ethers.utils.parseEther("" + tokenDepositAmount)));
+                      setDepositing(false);
                     }}
                   >
-                    Sell Tokens
+                    Deposit Tokens
                   </Button>
                 </div>
               </Card>
@@ -699,17 +699,15 @@ function App(props) {
               />
             </div>
             <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
-              <div>Sell Token Events:</div>
+              <div>Deposit Token Events:</div>
               <List
-                dataSource={sellTokensEvents}
+                dataSource={depositTokensEvents}
                 renderItem={item => {
                   return (
                     <List.Item key={item.blockNumber + item.blockHash}>
-                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> sold
-                      <Balance balance={item.args[2]} />
-                      Tokens to get
+                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> Deposited
                       <Balance balance={item.args[1]} />
-                      ETH
+                      Tokens
                     </List.Item>
                   );
                 }}
