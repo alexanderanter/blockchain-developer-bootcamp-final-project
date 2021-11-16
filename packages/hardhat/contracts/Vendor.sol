@@ -155,10 +155,11 @@ contract Vendor is Ownable {
 
   }
   //Owner can trig this whenever,
-  function exchange(uint amount) public onlyOwner {
-    require(amount <= totalDai, "not enough staked");
+  function exchange() public onlyOwner {
+    require(totalAmountToExchange >= 200, "not enough to convert");
+    require(totalAmountToExchange <= totalDai, "not enough ETH staked");
     //todo add functionality for uniswap trade
-    convert(amount);
+    convert(totalAmountToExchange);
   }
 
   function convert(uint amount) private {
