@@ -114,11 +114,18 @@ contract Vendor is Ownable {
 
     function depositTokens(uint256 amount) public returns (uint) {
 
+      require(amount > 10000000000000000000, "Specify the amount you want to deposit minimum 10 DAI");
+
       balances[msg.sender] += amount;
       //add user if they don't exist
       if (existingUser[msg.sender] == false){
         existingUser[msg.sender] = true;
         addressIndexes.push(msg.sender);
+
+        //set default exchange amount to 10
+        //todo increase default before production to around 500 USD
+        userAmountToExchange[msg.sender] = 10000000000000000000;
+        totalAmountToExchange = totalAmountToExchange + 10000000000000000000;
       }
 
       //Make it possible to exchange
@@ -126,7 +133,7 @@ contract Vendor is Ownable {
       totalDai += amount;
 
 
-      require(amount > 0, "Specify the amount you want to deposit");
+
       // require(yourToken.balanceOf(msg.sender) >= amount, "You do not have enough tokens to sell");
       
       require(
@@ -135,6 +142,8 @@ contract Vendor is Ownable {
       );
      
       _safeTransferFrom(yourToken, msg.sender, address(this), amount);
+
+
       emit DepositTokens(msg.sender, amount);
       return balances[msg.sender];
   }
