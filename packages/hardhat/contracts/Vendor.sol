@@ -39,6 +39,9 @@ contract Vendor is Ownable {
   mapping(address => uint256) public usedDai;
   mapping(address => bool) public existingUser;
 
+  //keep track of what each user want to exchange every conversion
+  mapping(address => uint256) public userAmountToExchange;
+
   event DepositTokens(address depositor, uint256 amountOfTokens);
 
   event Withdraw(address accountAddress, uint256 amount);
@@ -50,6 +53,8 @@ contract Vendor is Ownable {
   //Total funds thats available for withdrawal
   uint256 public totalWeth;
 
+  //Total DAI that should be converted every exchange
+  uint256 public totalAmountToExchange;
  
 
 
@@ -207,6 +212,13 @@ function updateClaim(address user) public returns(uint) {
 } 
 
 
+
+function setAmountToExchange(uint256 amount) public {
+    uint256 previousAmount = userAmountToExchange[msg.sender];
+    userAmountToExchange[msg.sender] = amount;
+
+    totalAmountToExchange = totalAmountToExchange - previousAmount + amount;
+}
 
 
   // event BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens);
