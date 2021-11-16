@@ -1,9 +1,12 @@
-pragma solidity >=0.6.0 <0.7.0;
+pragma solidity =0.7.6;
+pragma abicoder v2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./YourToken.sol";
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
+import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 
 contract Vendor is Ownable {
   using SafeMath for uint256;
