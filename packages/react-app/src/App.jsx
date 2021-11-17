@@ -87,6 +87,10 @@ const poktMainnetProvider = navigator.onLine
 const mainnetInfura = navigator.onLine
   ? new ethers.providers.StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
   : null;
+//added for rinkebyInfura
+const rinkebyInfura = navigator.onLine
+  ? new ethers.providers.StaticJsonRpcProvider("https://rinkeby.infura.io/v3/" + INFURA_ID)
+  : null;
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_ID
 
 // 🏠 Your local provider is usually pointed at your local blockchain
@@ -184,6 +188,9 @@ function App(props) {
       ? scaffoldEthProvider
       : mainnetInfura;
 
+  //todo added for dainkrinkeby
+  const rinkebyProvider = rinkebyInfura;
+
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
 
@@ -247,6 +254,12 @@ function App(props) {
   //
   // If you want to bring in the mainnet DAI contract it would look like:
   const mainnetContracts = useContractLoader(mainnetProvider, contractConfig);
+  console.log(mainnetContracts, "mainnetcontracts");
+
+  // If you want to bring in the Rinkeby DAI contract it would look like:
+  const rinkebyContracts = useContractLoader(rinkebyProvider, contractConfig);
+
+  console.log(rinkebyContracts, "rinkebycontracts");
 
   // If you want to call a function on a new block
   useOnBlock(mainnetProvider, () => {

@@ -1,5 +1,5 @@
 //ToDo: MY INFURA_ID, SWAP IN YOURS FROM https://infura.io/dashboard/ethereum
-export const INFURA_ID = "178ab376b2b047ec95d21b3deee360d6";
+export const INFURA_ID = "fcdd93c53bf9483a81b4aac7558f3b99";
 
 // MY ETHERSCAN_ID, SWAP IN YOURS FROM https://etherscan.io/myapikey
 export const ETHERSCAN_KEY = "PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8";
@@ -8,10 +8,16 @@ export const ETHERSCAN_KEY = "PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8";
 export const BLOCKNATIVE_DAPPID = "0b58206a-f3c0-4701-a62f-73c7243e8c77";
 
 // EXTERNAL CONTRACTS vvvv, add the addresses and abi's here.
-export const DAI_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
+
+//todo mainnet
+// export const DAI_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
+
+//rinkeby DAI
+export const DAI_ADDRESS = "0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea";
+//replace chainId_ with 4
 export const DAI_ABI = [
   {
-    inputs: [{ internalType: "uint256", name: "chainId_", type: "uint256" }],
+    inputs: [{ internalType: "uint256", name: "4", type: "uint256" }],
     payable: false,
     stateMutability: "nonpayable",
     type: "constructor",
