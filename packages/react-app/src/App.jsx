@@ -271,15 +271,19 @@ function App(props) {
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
   ]);
 
+  const myRinkebyDAIBalance = useContractReader(rinkebyContracts, "DAI", "balanceOf", [
+    "0xBC42f234b6173A288D91fA0342fF0270Ba376792",
+  ]);
+
   const vendorAddress = readContracts && readContracts.Vendor && readContracts.Vendor.address;
 
   const vendorETHBalance = useBalance(localProvider, vendorAddress);
   if (DEBUG) console.log("💵 vendorETHBalance", vendorETHBalance ? ethers.utils.formatEther(vendorETHBalance) : "...");
 
-  const vendorTokenBalance = useContractReader(readContracts, "YourToken", "balanceOf", [vendorAddress]);
+  const vendorTokenBalance = useContractReader(readContracts, "DAI", "balanceOf", [vendorAddress]);
   console.log("🏵 vendorTokenBalance:", vendorTokenBalance ? ethers.utils.formatEther(vendorTokenBalance) : "...");
 
-  const yourTokenBalance = useContractReader(readContracts, "YourToken", "balanceOf", [address]);
+  const yourTokenBalance = useContractReader(readContracts, "DAI", "balanceOf", [address]);
   console.log("🏵 yourTokenBalance:", yourTokenBalance ? ethers.utils.formatEther(yourTokenBalance) : "...");
 
   const tokensPerEth = useContractReader(readContracts, "Vendor", "tokensPerEth");
@@ -600,7 +604,7 @@ function App(props) {
         <Switch>
           <Route exact path="/">
             <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Your Tokens" extra={<a href="#">code</a>}>
+              <Card title="Your DAI balance" extra={<a href="#">code</a>}>
                 <div style={{ padding: 8 }}>
                   <Balance balance={yourTokenBalance} fontSize={64} />
                 </div>
@@ -609,7 +613,7 @@ function App(props) {
             {transferDisplay}
             <Divider />
             <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Withdraw Tokens" extra={<a href="#">code</a>}>
+              <Card title="Withdraw ETH" extra={<a href="#">code</a>}>
                 <div style={{ padding: 8 }}>
                   <Balance balance={wethClaimable} dollarMultiplier={price} />
                 </div>
@@ -666,9 +670,9 @@ function App(props) {
                     loading={depositing}
                     onClick={async () => {
                       console.log(tokenDepositAmount, allowedTokenBalance);
-                      if (tokenDepositAmount >= allowedTokenBalance) {
+                      if (tokenDepositAmount > allowedTokenBalance) {
                         await tx(
-                          writeContracts.YourToken.approve(vendorAddress, ethers.utils.parseEther(tokenDepositAmount)),
+                          writeContracts.DAI.approve(vendorAddress, ethers.utils.parseEther(tokenDepositAmount)),
                         );
                       }
                       setDepositing(true);

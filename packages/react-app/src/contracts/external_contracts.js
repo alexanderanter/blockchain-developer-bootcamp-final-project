@@ -958,7 +958,7 @@ module.exports = {
         abi: LINKABI,
       },
       DAI: {
-        address: "0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea",
+        address: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
         abi: DAIABI,
       },
       UNI: {

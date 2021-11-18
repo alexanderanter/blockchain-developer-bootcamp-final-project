@@ -25,6 +25,10 @@ contract Vendor is Ownable {
   }
 
 
+  //rinkeby DAI
+  //todo replace for mainnet DAI before production
+  address public constant DAI = 0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa;
+
  
     //specify owner, maybe not necessary?
   // address public myOwner = 0x0c9A1E4a543618706D31F33b643aba10E0D9048e;
@@ -138,13 +142,21 @@ contract Vendor is Ownable {
 
 
       // require(yourToken.balanceOf(msg.sender) >= amount, "You do not have enough tokens to sell");
-      
-      require(
-          yourToken.allowance(msg.sender, address(this)) >= amount,
-          "Token allowance too low"
-      );
+
+
+
+
+
+      //replaced with dai
+      // require(
+      //     yourToken.allowance(msg.sender, address(this)) >= amount,
+      //     "Token allowance too low"
+      // );
      
-      _safeTransferFrom(yourToken, msg.sender, address(this), amount);
+      // _safeTransferFrom(yourToken, msg.sender, address(this), amount);
+
+      TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amount);
+
 
 
       emit DepositTokens(msg.sender, amount);

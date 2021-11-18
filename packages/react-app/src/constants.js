@@ -1,5 +1,5 @@
 //ToDo: MY INFURA_ID, SWAP IN YOURS FROM https://infura.io/dashboard/ethereum
-export const INFURA_ID = "fcdd93c53bf9483a81b4aac7558f3b99";
+export const INFURA_ID = "85fb697f2e5f4f91b8bb2fbf94ca0519";
 
 // MY ETHERSCAN_ID, SWAP IN YOURS FROM https://etherscan.io/myapikey
 export const ETHERSCAN_KEY = "PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8";
@@ -12,8 +12,8 @@ export const BLOCKNATIVE_DAPPID = "0b58206a-f3c0-4701-a62f-73c7243e8c77";
 //todo mainnet
 // export const DAI_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 
-//rinkeby DAI
-export const DAI_ADDRESS = "0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea";
+//rinkeby DAI 0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa
+export const DAI_ADDRESS = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
 //replace chainId_ with 4
 export const DAI_ABI = [
   {
