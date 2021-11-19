@@ -699,10 +699,10 @@ function App(props) {
                 dataSource={withdrawEvents}
                 renderItem={item => {
                   return (
-                    <List.Item key={item.blockNumber + item.blockHash}>
+                    <List.Item key={22 + item.blockNumber + item.blockHash}>
                       <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> withdrawed
                       <Balance balance={item.args[1]} />
-                      ETH
+                      WETH
                     </List.Item>
                   );
                 }}
@@ -714,7 +714,7 @@ function App(props) {
                 dataSource={depositTokensEvents}
                 renderItem={item => {
                   return (
-                    <List.Item key={item.blockNumber + item.blockHash}>
+                    <List.Item key={33 + item.blockNumber + item.blockHash}>
                       <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> Deposited
                       <Balance balance={item.args[1]} />
                       Tokens

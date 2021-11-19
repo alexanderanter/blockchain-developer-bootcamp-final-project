@@ -182,8 +182,12 @@ uint24 public constant poolFee = 3000;
 
 
       //Transfer ETH from Smart Contract to user
-      (bool success, ) = msg.sender.call{value: wethClaimable[msg.sender]}("");
-      require( success, "NOT ENOUGH ETH IN SMART CONTRACT, TRY AGAIN LATER");
+      // (bool success, ) = msg.sender.call{value: wethClaimable[msg.sender]}("");
+      // require( success, "NOT ENOUGH ETH IN SMART CONTRACT, TRY AGAIN LATER");
+
+
+      TransferHelper.safeTransferFrom(WETH9, address(this), msg.sender, wethClaimable[msg.sender]);
+
 
       emit Withdraw(msg.sender, wethClaimable[msg.sender]);
 
