@@ -603,17 +603,9 @@ function App(props) {
 
         <Switch>
           <Route exact path="/">
-            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Your DAI balance" extra={<a href="#">code</a>}>
-                <div style={{ padding: 8 }}>
-                  <Balance balance={yourTokenBalance} fontSize={64} />
-                </div>
-              </Card>
-            </div>
-            {transferDisplay}
             <Divider />
             <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Withdraw ETH" extra={<a href="#">code</a>}>
+              <Card title="YOUR WETH BALANCE" extra={<a href="#">code</a>}>
                 <div style={{ padding: 8 }}>
                   <Balance balance={wethClaimable} dollarMultiplier={price} />
                 </div>
@@ -648,7 +640,7 @@ function App(props) {
                       setTokenDepositAmount(e.target.value);
                     }}
                   />
-                  <Balance balance={ethCostToDepositTokens} dollarMultiplier={price} />
+                  <p style={{ padding: 8, fontSize: 22 }}>{tokenDepositAmount} DAI </p>
                 </div>
 
                 {/* <div style={{ padding: 8 }}>
@@ -690,12 +682,20 @@ function App(props) {
                 </div>
               </Card>
             </div>
+            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+              <Card title="Your Wallet DAI balance" extra={<a href="#">code</a>}>
+                <div style={{ padding: 8 }}>
+                  <Balance balance={yourTokenBalance} fontSize={64} />
+                </div>
+              </Card>
+            </div>
+            {transferDisplay}
             <div style={{ padding: 8, marginTop: 32 }}>
-              <div>Vendor Token Balance:</div>
+              <div>Contract DAI Balance:</div>
               <Balance balance={vendorTokenBalance} fontSize={64} />
             </div>
             <div style={{ padding: 8 }}>
-              <div>Vendor ETH Balance:</div>
+              <div>Contract ETH Balance:</div>
               <Balance balance={vendorETHBalance} fontSize={64} /> ETH
             </div>
             <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
