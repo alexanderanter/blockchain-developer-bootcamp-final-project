@@ -115,7 +115,7 @@ uint24 public constant poolFee = 3000;
               tokenIn: DAI,
               tokenOut: WETH9,
               fee: poolFee,
-              recipient: msg.sender,
+              recipient: address(this),
               deadline: block.timestamp,
               amountIn: amountIn,
               amountOutMinimum: 0,
