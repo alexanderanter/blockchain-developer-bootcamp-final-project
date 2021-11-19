@@ -289,7 +289,7 @@ function App(props) {
   const tokensPerEth = useContractReader(readContracts, "Vendor", "tokensPerEth");
   console.log("🏦 tokensPerEth:", tokensPerEth ? tokensPerEth.toString() : "...");
 
-  const allowedTokenBalance = useContractReader(readContracts, "YourToken", "allowance", [address, vendorAddress]);
+  const allowedTokenBalance = useContractReader(readContracts, "DAI", "allowance", [address, vendorAddress]);
   console.log("🏵 allowedTokenBalance:", allowedTokenBalance ? ethers.utils.formatEther(allowedTokenBalance) : "...");
 
   const wethClaimable = useContractReader(readContracts, "Vendor", "wethClaimable", [address]);
@@ -669,15 +669,20 @@ function App(props) {
                     type={"primary"}
                     loading={depositing}
                     onClick={async () => {
-                      console.log(tokenDepositAmount, allowedTokenBalance);
-                      if (tokenDepositAmount > allowedTokenBalance) {
-                        await tx(
-                          writeContracts.DAI.approve(vendorAddress, ethers.utils.parseEther(tokenDepositAmount)),
-                        );
+                      if (tokenDepositAmount < 10) {
+                        alert("Deposit needs to be 10DAI or more");
+                      } else {
+                        console.log(tokenDepositAmount, allowedTokenBalance);
+                        setDepositing(true);
+                        if (tokenDepositAmount > allowedTokenBalance) {
+                          await tx(
+                            writeContracts.DAI.approve(vendorAddress, ethers.utils.parseEther(tokenDepositAmount)),
+                          );
+                        }
+
+                        await tx(writeContracts.Vendor.depositTokens(ethers.utils.parseEther("" + tokenDepositAmount)));
+                        setDepositing(false);
                       }
-                      setDepositing(true);
-                      await tx(writeContracts.Vendor.depositTokens(ethers.utils.parseEther("" + tokenDepositAmount)));
-                      setDepositing(false);
                     }}
                   >
                     Deposit Tokens

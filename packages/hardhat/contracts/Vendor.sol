@@ -221,7 +221,7 @@ uint24 public constant poolFee = 3000;
 
     function depositTokens(uint256 amount) public returns (uint) {
 
-      require(amount > 10000000000000000000, "Specify the amount you want to deposit minimum 10 DAI");
+      require(amount >= 10000000000000000000, "Specify the amount you want to deposit minimum 10 DAI");
 
       balances[msg.sender] += amount;
       //add user if they don't exist
