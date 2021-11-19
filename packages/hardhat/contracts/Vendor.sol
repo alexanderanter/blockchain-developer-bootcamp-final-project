@@ -14,25 +14,35 @@ contract Vendor is Ownable {
   YourToken yourToken;
 
   uint256 public constant tokensPerEth = 100;
+    //rinkeby DAI
+  //todo replace for mainnet DAI before production
+  address public constant DAI = 0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa;
 
-  constructor(address tokenAddress) public {
+  //rinkebyWETH
+  //todo replace for mainnet WETH before production
+  address public constant WETH9 = 0xc778417E063141139Fce010982780140Aa0cD5Ab;
+
+// UNISWAP
+// Todo inherit the swap router instead of passing it in, passing it in below for simplicity
+
+ISwapRouter public immutable swapRouter;
+
+ // we will set the pool fee to 0.3% on UNISWAP
+uint24 public constant poolFee = 3000;
+
+  constructor(address tokenAddress, ISwapRouter _swapRouter ) public {
     yourToken = YourToken(tokenAddress);
-
+    swapRouter = _swapRouter;
     //transfer in deploy script instead
     // transferOwnership(0x0c9A1E4a543618706D31F33b643aba10E0D9048e);
 
     // balances[myOwner] = 1000000000000000000;
   }
 
-
-  //rinkeby DAI
-  //todo replace for mainnet DAI before production
-  address public constant DAI = 0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa;
-
  
     //specify owner, maybe not necessary?
   // address public myOwner = 0x0c9A1E4a543618706D31F33b643aba10E0D9048e;
-  uint256 public deadline = block.timestamp + 30 seconds;
+  uint256 public deadline = block.timestamp + 50 seconds;
 
   //declare variable to decide if Exchange is available or not
   bool public openForExchange;
@@ -73,6 +83,92 @@ contract Vendor is Ownable {
         uint _quotient =  ((_numerator / denominator) + 5) / 10;
         return ( _quotient);
   }
+
+
+
+
+
+
+
+  //UNSIWAP ROUTER below:
+     /// @notice swapExactInputSingle swaps a fixed amount of DAI for a maximum possible amount of WETH9
+    /// using the DAI/WETH9 0.3% pool by calling `exactInputSingle` in the swap router.
+    /// @dev The calling address must approve this contract to spend at least `amountIn` worth of its DAI for this function to succeed.
+    /// @param amountIn The exact amount of DAI that will be swapped for WETH9.
+    /// @return amountOut The amount of WETH9 received.
+
+
+    
+    function swapExactInputSingle(uint256 amountIn) public returns (uint256 amountOut) {
+      // msg.sender must approve this contract
+
+      // Transfer the specified amount of DAI to this contract.
+      // TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amountIn);
+
+      // Approve the router to spend DAI.
+      TransferHelper.safeApprove(DAI, address(swapRouter), amountIn);
+
+      // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
+      // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+      ISwapRouter.ExactInputSingleParams memory params =
+          ISwapRouter.ExactInputSingleParams({
+              tokenIn: DAI,
+              tokenOut: WETH9,
+              fee: poolFee,
+              recipient: msg.sender,
+              deadline: block.timestamp,
+              amountIn: amountIn,
+              amountOutMinimum: 0,
+              sqrtPriceLimitX96: 0
+          });
+
+      // The call to `exactInputSingle` executes the swap.
+      amountOut = swapRouter.exactInputSingle(params);
+  }
+
+  /// @notice swapExactOutputSingle swaps a minimum possible amount of DAI for a fixed amount of WETH.
+  /// @dev The calling address must approve this contract to spend its DAI for this function to succeed. As the amount of input DAI is variable,
+  /// the calling address will need to approve for a slightly higher amount, anticipating some variance.
+  /// @param amountOut The exact amount of WETH9 to receive from the swap.
+  /// @param amountInMaximum The amount of DAI we are willing to spend to receive the specified amount of WETH9.
+  /// @return amountIn The amount of DAI actually spent in the swap.
+  function swapExactOutputSingle(uint256 amountOut, uint256 amountInMaximum) public returns (uint256 amountIn) {
+      // Transfer the specified amount of DAI to this contract.
+      TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amountInMaximum);
+
+      // Approve the router to spend the specifed `amountInMaximum` of DAI.
+      // In production, you should choose the maximum amount to spend based on oracles or other data sources to acheive a better swap.
+      TransferHelper.safeApprove(DAI, address(swapRouter), amountInMaximum);
+
+      ISwapRouter.ExactOutputSingleParams memory params =
+          ISwapRouter.ExactOutputSingleParams({
+              tokenIn: DAI,
+              tokenOut: WETH9,
+              fee: poolFee,
+              recipient: msg.sender,
+              deadline: block.timestamp,
+              amountOut: amountOut,
+              amountInMaximum: amountInMaximum,
+              sqrtPriceLimitX96: 0
+          });
+
+      // Executes the swap returning the amountIn needed to spend to receive the desired amountOut.
+      amountIn = swapRouter.exactOutputSingle(params);
+
+      // For exact output swaps, the amountInMaximum may not have all been spent.
+      // If the actual amount spent (amountIn) is less than the specified maximum amount, we must refund the msg.sender and approve the swapRouter to spend 0.
+      if (amountIn < amountInMaximum) {
+          TransferHelper.safeApprove(DAI, address(swapRouter), 0);
+          TransferHelper.safeTransfer(DAI, msg.sender, amountInMaximum - amountIn);
+      }
+  }
+
+
+
+
+
+
+
 
 
   function transfer(address to, uint256 amount) public {
@@ -180,7 +276,7 @@ contract Vendor is Ownable {
   }
   //Owner can trig this whenever,
   function exchange() public onlyOwner {
-    require(totalAmountToExchange >= 200, "not enough to convert");
+    require(totalAmountToExchange >= 0, "not enough to convert");
     require(totalAmountToExchange <= totalDai, "not enough ETH staked");
     //todo add functionality for uniswap trade
     convert(totalAmountToExchange);
@@ -189,7 +285,10 @@ contract Vendor is Ownable {
   function convert(uint amount) private {
 
     //dummy conversion
-    uint wethToAdd = amount / 5;
+    // uint wethToAdd = amount / 5;
+
+
+    uint wethToAdd = swapExactInputSingle(amount);
     //require( success, "FAILED");
     
     totalConvertedDai += amount;
