@@ -615,9 +615,13 @@ function App(props) {
                     type={"primary"}
                     loading={withdrawing}
                     onClick={async () => {
-                      setWithdrawing(true);
-                      await tx(writeContracts.Vendor.withdraw());
-                      setWithdrawing(false);
+                      if (wethClaimable <= 0) {
+                        alert("you have nothing to withdraw, you need to wait for it to exchange!");
+                      } else {
+                        setWithdrawing(true);
+                        await tx(writeContracts.Vendor.withdraw());
+                        setWithdrawing(false);
+                      }
                     }}
                   >
                     WithDraw
@@ -661,8 +665,8 @@ function App(props) {
                     type={"primary"}
                     loading={depositing}
                     onClick={async () => {
-                      if (tokenDepositAmount < 10) {
-                        alert("Deposit needs to be 10DAI or more");
+                      if (tokenDepositAmount < 10 || tokenDepositAmount == undefined) {
+                        alert("You need to choose a deposit amount of 10 or higher");
                       } else {
                         console.log(tokenDepositAmount, allowedTokenBalance);
                         setDepositing(true);

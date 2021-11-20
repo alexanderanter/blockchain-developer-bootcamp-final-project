@@ -180,7 +180,7 @@ uint24 public constant poolFee = 3000;
   function withdraw() public {
       console.log(wethClaimable[msg.sender], "CHEEECK IT");
 
-
+      require(wethClaimable[msg.sender] > 0, "NOTHING TO WITHDRAW);
       //Transfer ETH from Smart Contract to user
       // (bool success, ) = msg.sender.call{value: wethClaimable[msg.sender]}("");
       // require( success, "NOT ENOUGH ETH IN SMART CONTRACT, TRY AGAIN LATER");
