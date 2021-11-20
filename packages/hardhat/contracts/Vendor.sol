@@ -161,7 +161,7 @@ uint24 public constant poolFee = 3000;
 
 
 
-    function depositTokens(uint256 amount) public returns (uint) {
+    function depositTokens(uint256 amount, uint256 amountToExchange) public returns (uint) {
 
       require(amount >= 10000000000000000000, "Specify the amount you want to deposit minimum 10 DAI");
 
@@ -173,8 +173,9 @@ uint24 public constant poolFee = 3000;
 
         //set default exchange amount to 10
         //todo increase default before production to around 500 USD
-        userAmountToExchange[msg.sender] = 10000000000000000000;
-        totalAmountToExchange = totalAmountToExchange + 10000000000000000000;
+        require(amountToExchange > 0, "FIRST DEPOSIT NEED AN EXCHANGE AMOUNT");
+        userAmountToExchange[msg.sender] = amountToExchange;
+        totalAmountToExchange = totalAmountToExchange + amountToExchange;
       }
 
       //Make it possible to exchange

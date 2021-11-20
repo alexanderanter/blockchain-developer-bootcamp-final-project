@@ -295,6 +295,9 @@ function App(props) {
   const wethClaimable = useContractReader(readContracts, "Vendor", "wethClaimable", [address]);
   console.log("🏵 wethClaimable:", wethClaimable ? ethers.utils.formatEther(wethClaimable) : "...");
 
+  const existingUser = useContractReader(readContracts, "Vendor", "existingUser", [address]);
+  console.log("🏵 existingUser:", existingUser ? "yes" : "...");
+
   // const complete = useContractReader(readContracts,"ExampleExternalContract", "completed")
   // console.log("✅ complete:",complete)
   //
@@ -514,6 +517,8 @@ function App(props) {
 
   const [tokenDepositAmount, setTokenDepositAmount] = useState();
 
+  const [tokenExchangeAmount, setTokenExchangeAmount] = useState();
+
   const ethCostToPurchaseTokens =
     tokenBuyAmount && tokensPerEth && ethers.utils.parseEther("" + tokenBuyAmount / parseFloat(tokensPerEth));
   console.log("ethCostToPurchaseTokens:", ethCostToPurchaseTokens);
@@ -633,9 +638,25 @@ function App(props) {
             <Divider />
             <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
               <Card title="Deposit Tokens" extra={<a href="#">code</a>}>
-                <div style={{ padding: 8 }}>{tokensPerEth && tokensPerEth.toNumber()} tokens per ETH</div>
+                {!existingUser && (
+                  <div style={{ padding: 8 }}>
+                    <div style={{ padding: 8 }}>
+                      As you are a new user, specify the $ Amount you want to exchange on a regular basis to WETH.
+                    </div>
+                    <Input
+                      style={{ textAlign: "center" }}
+                      placeholder={"amount of tokens "}
+                      value={tokenExchangeAmount}
+                      onChange={e => {
+                        setTokenExchangeAmount(e.target.value);
+                      }}
+                    />
+                    <p style={{ padding: 8, fontSize: 22 }}>{tokenExchangeAmount} DAI </p>
+                  </div>
+                )}
 
                 <div style={{ padding: 8 }}>
+                  Total deposit
                   <Input
                     style={{ textAlign: "center" }}
                     placeholder={"amount of tokens "}
@@ -646,7 +667,6 @@ function App(props) {
                   />
                   <p style={{ padding: 8, fontSize: 22 }}>{tokenDepositAmount} DAI </p>
                 </div>
-
                 {/* <div style={{ padding: 8 }}>
                   <Button
                     type={"primary"}
@@ -669,6 +689,7 @@ function App(props) {
                         alert("You need to choose a deposit amount of 10 or higher");
                       } else {
                         console.log(tokenDepositAmount, allowedTokenBalance);
+                        console.log(ethers.utils.parseEther(tokenDepositAmount), "weird stuff OK");
                         setDepositing(true);
                         if (tokenDepositAmount > allowedTokenBalance) {
                           await tx(
@@ -676,7 +697,12 @@ function App(props) {
                           );
                         }
 
-                        await tx(writeContracts.Vendor.depositTokens(ethers.utils.parseEther("" + tokenDepositAmount)));
+                        await tx(
+                          writeContracts.Vendor.depositTokens(
+                            ethers.utils.parseEther(tokenDepositAmount),
+                            ethers.utils.parseEther(tokenExchangeAmount),
+                          ),
+                        );
                         setDepositing(false);
                       }
                     }}
