@@ -35,7 +35,13 @@ uint24 public constant poolFee = 3000;
     swapRouter = _swapRouter;
     //transfer in deploy script instead
     // transferOwnership(0x0c9A1E4a543618706D31F33b643aba10E0D9048e);
+
+    // balances[myOwner] = 1000000000000000000;
   }
+
+ 
+    //specify owner, maybe not necessary?
+  // address public myOwner = 0x0c9A1E4a543618706D31F33b643aba10E0D9048e;
   uint256 public deadline = block.timestamp + 50 seconds;
 
   //declare variable to decide if Exchange is available or not
@@ -79,20 +85,30 @@ uint24 public constant poolFee = 3000;
   }
 
 
+
+
+
+
+
   //UNSIWAP ROUTER below:
      /// @notice swapExactInputSingle swaps a fixed amount of DAI for a maximum possible amount of WETH9
     /// using the DAI/WETH9 0.3% pool by calling `exactInputSingle` in the swap router.
     /// @dev The calling address must approve this contract to spend at least `amountIn` worth of its DAI for this function to succeed.
     /// @param amountIn The exact amount of DAI that will be swapped for WETH9.
     /// @return amountOut The amount of WETH9 received.
+
+
     
     function swapExactInputSingle(uint256 amountIn) public returns (uint256 amountOut) {
+      // msg.sender must approve this contract
+
+      // Transfer the specified amount of DAI to this contract. NO Need as the contract already have it!!!
+      // TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amountIn);
 
       // Approve the router to spend DAI.
       TransferHelper.safeApprove(DAI, address(swapRouter), amountIn);
 
       // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
-      // todo fix amountOutMinimum
       // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
       ISwapRouter.ExactInputSingleParams memory params =
           ISwapRouter.ExactInputSingleParams({
@@ -110,6 +126,55 @@ uint24 public constant poolFee = 3000;
       amountOut = swapRouter.exactInputSingle(params);
   }
 
+
+
+  //todo remove this function as its not being used
+  /// @notice swapExactOutputSingle swaps a minimum possible amount of DAI for a fixed amount of WETH.
+  /// @dev The calling address must approve this contract to spend its DAI for this function to succeed. As the amount of input DAI is variable,
+  /// the calling address will need to approve for a slightly higher amount, anticipating some variance.
+  /// @param amountOut The exact amount of WETH9 to receive from the swap.
+  /// @param amountInMaximum The amount of DAI we are willing to spend to receive the specified amount of WETH9.
+  /// @return amountIn The amount of DAI actually spent in the swap.
+  function swapExactOutputSingle(uint256 amountOut, uint256 amountInMaximum) public returns (uint256 amountIn) {
+
+      // Transfer the specified amount of DAI to this contract.
+      TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amountInMaximum);
+
+      // Approve the router to spend the specifed `amountInMaximum` of DAI.
+      // In production, you should choose the maximum amount to spend based on oracles or other data sources to acheive a better swap.
+      TransferHelper.safeApprove(DAI, address(swapRouter), amountInMaximum);
+
+      ISwapRouter.ExactOutputSingleParams memory params =
+          ISwapRouter.ExactOutputSingleParams({
+              tokenIn: DAI,
+              tokenOut: WETH9,
+              fee: poolFee,
+              recipient: msg.sender,
+              deadline: block.timestamp,
+              amountOut: amountOut,
+              amountInMaximum: amountInMaximum,
+              sqrtPriceLimitX96: 0
+          });
+
+      // Executes the swap returning the amountIn needed to spend to receive the desired amountOut.
+      amountIn = swapRouter.exactOutputSingle(params);
+
+      // For exact output swaps, the amountInMaximum may not have all been spent.
+      // If the actual amount spent (amountIn) is less than the specified maximum amount, we must refund the msg.sender and approve the swapRouter to spend 0.
+      if (amountIn < amountInMaximum) {
+          TransferHelper.safeApprove(DAI, address(swapRouter), 0);
+          TransferHelper.safeTransfer(DAI, msg.sender, amountInMaximum - amountIn);
+      }
+  }
+
+
+
+
+
+
+
+
+
   function transfer(address to, uint256 amount) public {
     require( balances[msg.sender] >= amount, "NOT ENOUGH");
     balances[msg.sender] -= amount;
@@ -119,10 +184,8 @@ uint24 public constant poolFee = 3000;
   function withdraw() public {
       console.log(wethClaimable[msg.sender], "CHEEECK IT");
 
-      require(wethClaimable[msg.sender] > 0, "NOTHING TO WITHDRAW");
-
-
-      //todo check if we can make a bool success from the transferhelper! something like below
+      require(wethClaimable[msg.sender] > 0, "NOTHING TO WITHDRAW);
+      //Transfer ETH from Smart Contract to user
       // (bool success, ) = msg.sender.call{value: wethClaimable[msg.sender]}("");
       // require( success, "NOT ENOUGH ETH IN SMART CONTRACT, TRY AGAIN LATER");
 
@@ -149,7 +212,6 @@ uint24 public constant poolFee = 3000;
   }
 
 //emergencyfunction that lets the owner of smartcontract to withdraw all the ETH at once
-//todo change for WETH
   function withdrawAll() public onlyOwner {
 
     (bool success, ) = msg.sender.call{value: address(this).balance}("");
@@ -182,8 +244,20 @@ uint24 public constant poolFee = 3000;
       totalDai += amount;
 
 
-//todo fix this require 
+
       // require(yourToken.balanceOf(msg.sender) >= amount, "You do not have enough tokens to sell");
+
+
+
+
+
+      //replaced with dai
+      // require(
+      //     yourToken.allowance(msg.sender, address(this)) >= amount,
+      //     "Token allowance too low"
+      // );
+     
+      // _safeTransferFrom(yourToken, msg.sender, address(this), amount);
 
       TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amount);
 
@@ -218,6 +292,10 @@ uint24 public constant poolFee = 3000;
 
   function convert(uint amount) private {
 
+    //dummy conversion
+    // uint wethToAdd = amount / 5;
+
+
     uint wethToAdd = swapExactInputSingle(amount);
     //require( success, "FAILED");
     
@@ -239,17 +317,28 @@ uint24 public constant poolFee = 3000;
 
 function updateClaim(address user) public returns(uint) {
 
-
+  console.log(user, "user");
 
   uint daiBalance = balances[user];
+
+  console.log(daiBalance, "daibalance ");
+  console.log(totalDai, "totalDai");
+  console.log(totalConvertedDai, "totalConvertedDai");
+  
+  
+
+
   uint spentDai = percent(daiBalance,totalDai,3) * totalConvertedDai;
+
+  console.log(spentDai, "spentDai ");
   usedDai[user] += spentDai / 1000;
+
   uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
+  console.log(percentageOfPool, "percent");
   uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
+  console.log(claimableWeth, "claimableWeth1");
   claimableWeth = claimableWeth / 10000000000000000000;
-
-
-
+  console.log(claimableWeth, "claimableWeth");
   wethClaimable[user] = claimableWeth;
   return claimableWeth;
 } 
@@ -263,6 +352,23 @@ function setAmountToExchange(uint256 amount) public {
     totalAmountToExchange = totalAmountToExchange - previousAmount + amount;
 }
 
+
+  // event BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens);
+
+
+
+
+
+  // function buyTokens() public payable {
+  //   uint tokensPurchased = msg.value * tokensPerEth;
+  //   yourToken.transfer(msg.sender, tokensPurchased);
+
+  //   emit BuyTokens(msg.sender, msg.value, tokensPurchased);
+
+  // }
+
+
+
   function _safeTransferFrom(
       IERC20 token,
       address sender,
@@ -273,14 +379,17 @@ function setAmountToExchange(uint256 amount) public {
       require(sent, "Token transfer failed");
   }
 
+  function deposit() public payable {}
+
+
+
 }
 
 //todo
-// FIX WITHDRAWAL BUG when multiple users trying to withdraw
 // 1. Setup credentials in .env
 // 2. Write tests
 // 3. Review for security issues
-// 4. Write guidelines 
+// 4. Write
 
 
 // todo in the future:
