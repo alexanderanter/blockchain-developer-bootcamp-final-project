@@ -950,6 +950,7 @@ const LINKABI = [
   },
 ];
 // Rinkeby DAI
+//todo change 4 to 1 for mainnet!!!!
 module.exports = {
   4: {
     contracts: {

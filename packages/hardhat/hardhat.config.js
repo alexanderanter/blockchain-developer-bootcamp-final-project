@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { utils } = require("ethers");
 const fs = require("fs");
 const chalk = require("chalk");
@@ -60,13 +61,17 @@ module.exports = {
       
       */
     },
-    rinkeby: {
-      url: "https://rinkeby.infura.io/v3/85fb697f2e5f4f91b8bb2fbf94ca0519", // <---- YOUR INFURA ID! (or it won't work)
+    // rinkeby: {
+    //   url: "https://rinkeby.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
 
-      //    url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/eth/rinkeby", // <---- YOUR MORALIS ID! (not limited to infura)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+    //   //    url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/eth/rinkeby", // <---- YOUR MORALIS ID! (not limited to infura)
+    //   accounts: {
+    //     mnemonic: mnemonic(),
+    //   },
+    // },
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${process.env.RINKEBY_INFURA_KEY}`,
+      accounts: [`${process.env.RINKEBY_DEPLOYER_PRIV_KEY}`],
     },
     kovan: {
       url: "https://kovan.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", // <---- YOUR INFURA ID! (or it won't work)
