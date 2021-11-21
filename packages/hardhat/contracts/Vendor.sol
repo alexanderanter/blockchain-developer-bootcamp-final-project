@@ -236,24 +236,52 @@ uint24 public constant poolFee = 3000;
      totalDai -= amount;
   }
 
+//todo fixed so that when a user have no more dai to exchange they don't credit for exchange
+//todo  make sure multiple deposits work well
+  //claim based on exchangeamount
+  function updateClaim(address user) public returns(uint) {
+
+    uint daiToChange = userAmountToExchange[user];
+    
+//percentage of the exchange pool multiplied with the total converted dai to see what the user spent
+    uint spentDai = percent(daiToChange,totalAmountToExchange,3) * totalConvertedDai;
+    usedDai[user] += spentDai / 1000;
+    //calculate the spentdai % in comparison with the total converted dai
+    uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
+    uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
+    claimableWeth = claimableWeth / 10000000000000000000;
+  
+  
+  
+    wethClaimable[user] = claimableWeth;
+
+    balances[user] -= daiToChange;
+    //check if the new user balance is enough to amount to exchange, otherwise change exchange balance
+    if(balances[user] < userAmountToExchange[user]){
+      uint256 previousAmount = userAmountToExchange[user];
+      userAmountToExchange[user] = balances[user];
+      totalAmountToExchange = totalAmountToExchange - previousAmount + userAmountToExchange[user];
+    }
+    return claimableWeth;
+ } 
+  
+ //claim based on deposit
+// function updateClaim(address user) public returns(uint) {
 
 
-function updateClaim(address user) public returns(uint) {
+
+//   uint daiBalance = balances[user];
+//   uint spentDai = percent(daiBalance,totalDai,3) * totalConvertedDai;
+//   usedDai[user] += spentDai / 1000;
+//   uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
+//   uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
+//   claimableWeth = claimableWeth / 10000000000000000000;
 
 
 
-  uint daiBalance = balances[user];
-  uint spentDai = percent(daiBalance,totalDai,3) * totalConvertedDai;
-  usedDai[user] += spentDai / 1000;
-  uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
-  uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
-  claimableWeth = claimableWeth / 10000000000000000000;
-
-
-
-  wethClaimable[user] = claimableWeth;
-  return claimableWeth;
-} 
+//   wethClaimable[user] = claimableWeth;
+//   return claimableWeth;
+// } 
 
 
 
@@ -279,7 +307,6 @@ function setAmountToExchange(uint256 amount) public {
 //todo
 // FIX overflow issue with amount of weth to withdraw
 // FIX WITHDRAWAL BUG when multiple users trying to withdraw after depositing different amounts after first exchange
-// 1. Setup credentials in .env
 // 2. Write tests
 // 3. Review for security issues
 // 4. Write guidelines 
