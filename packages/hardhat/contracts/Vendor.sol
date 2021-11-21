@@ -305,8 +305,8 @@ function setAmountToExchange(uint256 amount) public {
 }
 
 //todo
+// FIX bug caused by finish exchanging all the deposit dai and then deposit more
 // FIX overflow issue with amount of weth to withdraw
-// FIX WITHDRAWAL BUG when multiple users trying to withdraw after depositing different amounts after first exchange
 // 2. Write tests
 // 3. Review for security issues
 // 4. Write guidelines 
