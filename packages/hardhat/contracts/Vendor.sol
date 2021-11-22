@@ -206,6 +206,8 @@ uint24 public constant poolFee = 3000;
       require(timeLeft() == 0, "not enough time");
       //make sure that something has been staked so its open for exchange
       require(openForExchange == true, "not open for exchange" );
+      require(totalAmountToExchange >= 0, "not enough to convert");
+      require(totalAmountToExchange <= totalDai, "not enough ETH staked");
       convert(totalAmountToExchange);
 
   }
