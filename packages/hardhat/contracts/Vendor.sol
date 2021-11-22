@@ -168,6 +168,7 @@ uint24 public constant poolFee = 3000;
       balances[msg.sender] += amount;
       //add user if they don't exist
       if (existingUser[msg.sender] == false){
+        require(amount > amountToExchange, "Your exchange amount must be larger than your deposit!");
         existingUser[msg.sender] = true;
         addressIndexes.push(msg.sender);
 
@@ -288,6 +289,7 @@ uint24 public constant poolFee = 3000;
 
 
 function setAmountToExchange(uint256 amount) public {
+    require(balances[msg.sender] > amount, "your exchange amount needs to be bigger than your balance, deposit more DAI!");
     uint256 previousAmount = userAmountToExchange[msg.sender];
     userAmountToExchange[msg.sender] = amount;
 
