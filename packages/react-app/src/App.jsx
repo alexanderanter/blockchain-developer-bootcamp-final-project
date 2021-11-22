@@ -611,65 +611,114 @@ function App(props) {
         <Switch>
           <Route exact path="/">
             <Divider />
-            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="YOUR WETH BALANCE" extra={<a href="#">code</a>}>
-                <div style={{ padding: 8 }}>
-                  <Balance balance={wethClaimable} dollarMultiplier={price} />
-                </div>
 
-                <div style={{ padding: 8 }}>
-                  <Button
-                    type={"primary"}
-                    loading={withdrawing}
-                    onClick={async () => {
-                      if (wethClaimable <= 0) {
-                        alert("you have nothing to withdraw, you need to wait for it to exchange!");
-                      } else {
-                        setWithdrawing(true);
-                        await tx(writeContracts.Vendor.withdraw());
-                        setWithdrawing(false);
-                      }
-                    }}
-                  >
-                    WithDraw
-                  </Button>
-                </div>
-              </Card>
-            </div>
-
-            <Divider />
-            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Deposit Tokens" extra={<a href="#">code</a>}>
-                {!existingUser && (
-                  <div style={{ padding: 8 }}>
+            <Row>
+              <Col xs={24} sm={24} lg={8} xxl={8}>
+                <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+                  <Card title="YOUR WETH BALANCE" extra={<a href="#">code</a>}>
                     <div style={{ padding: 8 }}>
-                      As you are a new user, specify the $ Amount you want to exchange on a regular basis to WETH.
+                      <Balance balance={wethClaimable} dollarMultiplier={price} />
                     </div>
-                    <Input
-                      style={{ textAlign: "center" }}
-                      placeholder={"amount of tokens "}
-                      value={tokenExchangeAmount}
-                      onChange={e => {
-                        setTokenExchangeAmount(e.target.value);
-                      }}
-                    />
-                    <p style={{ padding: 8, fontSize: 22 }}>{tokenExchangeAmount} DAI </p>
-                  </div>
-                )}
 
-                <div style={{ padding: 8 }}>
-                  Total deposit
-                  <Input
-                    style={{ textAlign: "center" }}
-                    placeholder={"amount of tokens "}
-                    value={tokenDepositAmount}
-                    onChange={e => {
-                      setTokenDepositAmount(e.target.value);
-                    }}
-                  />
-                  <p style={{ padding: 8, fontSize: 22 }}>{tokenDepositAmount} DAI </p>
+                    <div style={{ padding: 8 }}>
+                      <Button
+                        type={"primary"}
+                        loading={withdrawing}
+                        onClick={async () => {
+                          if (wethClaimable <= 0) {
+                            alert("you have nothing to withdraw, you need to wait for it to exchange!");
+                          } else {
+                            setWithdrawing(true);
+                            await tx(writeContracts.Vendor.withdraw());
+                            setWithdrawing(false);
+                          }
+                        }}
+                      >
+                        WithDraw
+                      </Button>
+                    </div>
+                  </Card>
                 </div>
-                {/* <div style={{ padding: 8 }}>
+              </Col>
+              <Col xs={24} sm={24} lg={16} xxl={8}>
+                <Row>
+                  {" "}
+                  <Col xs={24} sm={12}>
+                    <Card title="Regular Exchange Amount" extra={<a href="#">code</a>}>
+                      {!existingUser && (
+                        <div style={{ padding: 8 }}>
+                          <div style={{ padding: 8 }}>
+                            As you are a new user, specify the $ Amount you want to exchange on a regular basis to WETH.
+                          </div>
+                          <Input
+                            style={{ textAlign: "center" }}
+                            placeholder={"amount of tokens "}
+                            value={tokenExchangeAmount}
+                            onChange={e => {
+                              setTokenExchangeAmount(e.target.value);
+                            }}
+                          />
+                          <p style={{ padding: 8, fontSize: 22 }}>{tokenExchangeAmount} DAI </p>
+                        </div>
+                      )}
+                      <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+                        {existingUser && (
+                          <>
+                            <div style={{ padding: 8 }}>
+                              <div style={{ padding: 8 }}>
+                                Specify the $ Amount you want to exchange on a regular basis to WETH.
+                              </div>
+                              <Input
+                                style={{ textAlign: "center" }}
+                                placeholder={"amount of tokens "}
+                                value={tokenExchangeAmount}
+                                onChange={e => {
+                                  setTokenExchangeAmount(e.target.value);
+                                }}
+                              />
+                              <p style={{ padding: 8, fontSize: 22 }}>{tokenExchangeAmount} DAI </p>
+                            </div>
+                            <div style={{ padding: 8 }}>
+                              <Button
+                                type={"primary"}
+                                loading={updatingAmount}
+                                onClick={async () => {
+                                  if (tokenExchangeAmount < 10) {
+                                    alert("You need to choose a exchange amount of 10 or higher");
+                                  } else {
+                                    setUpdatingAmount(true);
+                                    await tx(
+                                      writeContracts.Vendor.setAmountToExchange(
+                                        ethers.utils.parseEther(tokenExchangeAmount),
+                                      ),
+                                    );
+                                    setUpdatingAmount(false);
+                                  }
+                                }}
+                              >
+                                Update Amount To Exchange
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </Card>
+                  </Col>
+                  <Col xs={24} sm={12}>
+                    <Card title="Deposit Tokens" extra={<a href="#">code</a>}>
+                      <div style={{ padding: 8 }}>
+                        Total deposit
+                        <Input
+                          style={{ textAlign: "center" }}
+                          placeholder={"amount of tokens "}
+                          value={tokenDepositAmount}
+                          onChange={e => {
+                            setTokenDepositAmount(e.target.value);
+                          }}
+                        />
+                        <p style={{ padding: 8, fontSize: 22 }}>{tokenDepositAmount} DAI </p>
+                      </div>
+                      {/* <div style={{ padding: 8 }}>
                   <Button
                     type={"primary"}
                     loading={depositing}
@@ -682,93 +731,67 @@ function App(props) {
                     Approve Tokens
                   </Button>
                 </div> */}
-                <div style={{ padding: 8 }}>
-                  <Button
-                    type={"primary"}
-                    loading={depositing}
-                    onClick={async () => {
-                      if (tokenDepositAmount < 10 || tokenDepositAmount == undefined) {
-                        alert("You need to choose a deposit amount of 10 or higher");
-                      } else {
-                        setDepositing(true);
-                        //approve if necessary
-                        if (tokenDepositAmount > allowedTokenBalance) {
-                          await tx(
-                            writeContracts.DAI.approve(vendorAddress, ethers.utils.parseEther(tokenDepositAmount)),
-                          );
-                        }
+                      <div style={{ padding: 8 }}>
+                        <Button
+                          type={"primary"}
+                          loading={depositing}
+                          onClick={async () => {
+                            if (tokenDepositAmount < 10 || tokenDepositAmount == undefined) {
+                              alert("You need to choose a deposit amount of 10 or higher");
+                            } else {
+                              setDepositing(true);
+                              //approve if necessary
+                              if (tokenDepositAmount > allowedTokenBalance) {
+                                await tx(
+                                  writeContracts.DAI.approve(
+                                    vendorAddress,
+                                    ethers.utils.parseEther(tokenDepositAmount),
+                                  ),
+                                );
+                              }
 
-                        await tx(
-                          writeContracts.Vendor.depositTokens(
-                            ethers.utils.parseEther(tokenDepositAmount),
-                            ethers.utils.parseEther(tokenExchangeAmount),
-                          ),
-                        );
-                        setDepositing(false);
-                      }
-                    }}
-                  >
-                    Approve & Deposit Tokens
-                  </Button>
-                </div>
-              </Card>
-            </div>
-            <Divider />
-            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              {existingUser && (
-                <Card title="Set amount to exchange">
-                  <div style={{ padding: 8 }}>
+                              await tx(
+                                writeContracts.Vendor.depositTokens(
+                                  ethers.utils.parseEther(tokenDepositAmount),
+                                  ethers.utils.parseEther(tokenExchangeAmount),
+                                ),
+                              );
+                              setDepositing(false);
+                            }
+                          }}
+                        >
+                          Approve & Deposit Tokens
+                        </Button>
+                      </div>
+                    </Card>
+                  </Col>
+                </Row>
+                <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}></div>
+              </Col>
+              <Col xs={24} sm={24} lg={24} xxl={8}>
+                <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+                  <Card title="Your Wallet DAI balance" extra={<a href="#">code</a>}>
                     <div style={{ padding: 8 }}>
-                      Specify the $ Amount you want to exchange on a regular basis to WETH.
+                      <Balance balance={yourTokenBalance} fontSize={64} />
                     </div>
-                    <Input
-                      style={{ textAlign: "center" }}
-                      placeholder={"amount of tokens "}
-                      value={tokenExchangeAmount}
-                      onChange={e => {
-                        setTokenExchangeAmount(e.target.value);
-                      }}
-                    />
-                    <p style={{ padding: 8, fontSize: 22 }}>{tokenExchangeAmount} DAI </p>
-                  </div>
-                  <div style={{ padding: 8 }}>
-                    <Button
-                      type={"primary"}
-                      loading={updatingAmount}
-                      onClick={async () => {
-                        if (tokenExchangeAmount < 10) {
-                          alert("You need to choose a exchange amount of 10 or higher");
-                        } else {
-                          setUpdatingAmount(true);
-                          await tx(
-                            writeContracts.Vendor.setAmountToExchange(ethers.utils.parseEther(tokenExchangeAmount)),
-                          );
-                          setUpdatingAmount(false);
-                        }
-                      }}
-                    >
-                      Update Amount To Exchange
-                    </Button>
-                  </div>
-                </Card>
-              )}
-            </div>
-            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Your Wallet DAI balance" extra={<a href="#">code</a>}>
-                <div style={{ padding: 8 }}>
-                  <Balance balance={yourTokenBalance} fontSize={64} />
+                  </Card>
                 </div>
-              </Card>
-            </div>
-            {transferDisplay}
-            <div style={{ padding: 8, marginTop: 32 }}>
-              <div>Contract DAI Balance:</div>
-              <Balance balance={vendorTokenBalance} fontSize={64} />
-            </div>
-            <div style={{ padding: 8 }}>
-              <div>Contract ETH Balance:</div>
-              <Balance balance={vendorETHBalance} fontSize={64} /> ETH
-            </div>
+                {transferDisplay}
+                <div style={{ padding: 8, marginTop: 32 }}>
+                  <div>Contract DAI Balance:</div>
+                  <Balance balance={vendorTokenBalance} fontSize={64} />
+                </div>
+                <div style={{ padding: 8 }}>
+                  <div>Contract ETH Balance:</div>
+                  <Balance balance={vendorETHBalance} fontSize={64} /> ETH
+                </div>
+              </Col>
+            </Row>
+
+            <Divider />
+
+            <Divider />
+
             <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
               <div>Withdraw Token Events:</div>
               <List
