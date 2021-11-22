@@ -286,6 +286,12 @@ function App(props) {
   const yourTokenBalance = useContractReader(readContracts, "DAI", "balanceOf", [address]);
   console.log("🏵 yourTokenBalance:", yourTokenBalance ? ethers.utils.formatEther(yourTokenBalance) : "...");
 
+  const userAmountToExchange = useContractReader(readContracts, "Vendor", "userAmountToExchange", [address]);
+  console.log(
+    "🏵 userAmountToExchange :",
+    userAmountToExchange ? ethers.utils.formatEther(userAmountToExchange) : "...",
+  );
+
   const tokensPerEth = useContractReader(readContracts, "Vendor", "tokensPerEth");
   console.log("🏦 tokensPerEth:", tokensPerEth ? tokensPerEth.toString() : "...");
 
@@ -750,10 +756,18 @@ function App(props) {
                                 );
                               }
 
+                              //set a tknexchangeamount if its undefined as the function expects it
+                              let tknExchangeAmountArg;
+
+                              if (!tokenExchangeAmount) {
+                                tknExchangeAmountArg = "1337";
+                              } else {
+                                tknExchangeAmountArg = tokenExchangeAmount;
+                              }
                               await tx(
                                 writeContracts.Vendor.depositTokens(
                                   ethers.utils.parseEther(tokenDepositAmount),
-                                  ethers.utils.parseEther(tokenExchangeAmount),
+                                  ethers.utils.parseEther(tknExchangeAmountArg),
                                 ),
                               );
                               setDepositing(false);
@@ -770,9 +784,14 @@ function App(props) {
               </Col>
               <Col xs={24} sm={24} lg={24} xxl={8}>
                 <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-                  <Card title="Your Wallet DAI balance" extra={<a href="#">code</a>}>
+                  <Card title="Your Wallet DAI balance">
                     <div style={{ padding: 8 }}>
                       <Balance balance={yourTokenBalance} fontSize={64} />
+                    </div>
+                  </Card>
+                  <Card title="Your regular exchange amount">
+                    <div style={{ padding: 8 }}>
+                      <Balance balance={userAmountToExchange} fontSize={64} />
                     </div>
                   </Card>
                 </div>
