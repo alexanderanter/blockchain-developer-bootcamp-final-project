@@ -38,6 +38,7 @@ import { useContractConfig } from "./hooks";
 import Portis from "@portis/web3";
 import Fortmatic from "fortmatic";
 import Authereum from "authereum";
+import TextArea from "rc-textarea";
 
 const { ethers } = require("ethers");
 
@@ -537,6 +538,8 @@ function App(props) {
 
   const [tokenExchangeAmount, setTokenExchangeAmount] = useState();
 
+  const [displayTimeLeft, setDisplayTimeLeft] = useState();
+
   const ethCostToPurchaseTokens =
     tokenBuyAmount && tokensPerEth && ethers.utils.parseEther("" + tokenBuyAmount / parseFloat(tokensPerEth));
   console.log("ethCostToPurchaseTokens:", ethCostToPurchaseTokens);
@@ -550,6 +553,8 @@ function App(props) {
   const [tokenSendAmount, setTokenSendAmount] = useState();
 
   const [withdrawing, setWithdrawing] = useState();
+
+  const [exchanging, setExchaning] = useState();
 
   const [depositing, setDepositing] = useState();
 
@@ -631,8 +636,8 @@ function App(props) {
             <Divider />
 
             <Row>
-              <Col xs={24} sm={24} lg={8} xxl={8}>
-                <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+              <Col xs={24} sm={24} lg={8} xxl={6}>
+                <div style={{ padding: 8, marginTop: 32, margin: "auto" }}>
                   <Card title="YOUR WETH BALANCE" extra={<a href="#">code</a>}>
                     <div style={{ padding: 8 }}>
                       <Balance balance={wethClaimable} dollarMultiplier={price} />
@@ -657,8 +662,41 @@ function App(props) {
                     </div>
                   </Card>
                 </div>
+                <div style={{ padding: 8, marginTop: 32, margin: "auto" }}>
+                  <Card title="EXCHANGE DAI FOR WETH">
+                    {/* <div style={{ padding: 8 }}>
+                      Time Left:
+                      <Balance balance={displayTimeLeft} />
+                    </div> */}
+
+                    <div style={{ padding: 8 }}>
+                      <div style={{ padding: 50 }}>
+                        <TextArea value={`TIME LEFT UNTIL EXCHANGE: ${timeLeft}`} disable />
+                      </div>
+                      <Button
+                        type={"primary"}
+                        loading={exchanging}
+                        onClick={async () => {
+                          if (timeLeft > 0) {
+                            alert(
+                              `Not enough time have passed since last exchange event!
+                               Time Left: ${timeLeft} seconds`,
+                            );
+                          } else {
+                            setExchaning(true);
+                            await tx(writeContracts.Vendor.exchangeAll());
+                            setDisplayTimeLeft(timeLeft);
+                            setExchaning(false);
+                          }
+                        }}
+                      >
+                        Exchange
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
               </Col>
-              <Col xs={24} sm={24} lg={16} xxl={8}>
+              <Col xs={24} sm={24} lg={16} xxl={12}>
                 <Row>
                   {" "}
                   <Col xs={24} sm={12}>
@@ -794,8 +832,8 @@ function App(props) {
                 </Row>
                 <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}></div>
               </Col>
-              <Col xs={24} sm={24} lg={24} xxl={8}>
-                <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
+              <Col xs={24} sm={24} lg={24} xxl={6}>
+                <div style={{ padding: 8, marginTop: 32, margin: "auto" }}>
                   <Card title="Your Wallet DAI balance">
                     <div style={{ padding: 8 }}>
                       <Balance balance={yourTokenBalance} fontSize={64} />

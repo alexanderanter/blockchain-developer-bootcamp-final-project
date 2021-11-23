@@ -317,7 +317,6 @@ function setAmountToExchange(uint256 amount) public {
 //todo
 
 // FIX overflow issue with amount of weth to withdraw
-// FIX bug with infura ID, figure out how to load in the .env properly for react-app
 // 2. Write tests
 // 3. Review for security issues
 // 4. Write guidelines 
