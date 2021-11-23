@@ -40,6 +40,9 @@ import Fortmatic from "fortmatic";
 import Authereum from "authereum";
 
 const { ethers } = require("ethers");
+
+// const { dotenv } = require("dotenv").config();
+require("dotenv").config();
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -84,13 +87,19 @@ const poktMainnetProvider = navigator.onLine
       "https://eth-mainnet.gateway.pokt.network/v1/lb/611156b4a585a20035148406",
     )
   : null;
+
+//todo fix the infuralink as the infura_id in env ddidnt work properly
 const mainnetInfura = navigator.onLine
-  ? new ethers.providers.StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
+  ? new ethers.providers.StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + process.env.INFURA_ID)
   : null;
 //added for rinkebyInfura
 const rinkebyInfura = navigator.onLine
-  ? new ethers.providers.StaticJsonRpcProvider("https://rinkeby.infura.io/v3/" + INFURA_ID)
+  ? new ethers.providers.StaticJsonRpcProvider(process.env.REACT_APP_PROVIDER)
   : null;
+
+console.log(rinkebyInfura, "Rinkebyinfura");
+console.log(process.env.REACT_INFURA_ID, "react-infura-2");
+console.log(process.env.REACT_APP_PROVIDER, "react-app-provider");
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_ID
 
 // 🏠 Your local provider is usually pointed at your local blockchain
@@ -294,6 +303,9 @@ function App(props) {
 
   const tokensPerEth = useContractReader(readContracts, "Vendor", "tokensPerEth");
   console.log("🏦 tokensPerEth:", tokensPerEth ? tokensPerEth.toString() : "...");
+
+  const timeLeft = useContractReader(readContracts, "Vendor", "timeLeft");
+  console.log("🏦 timeLeft:", timeLeft ? timeLeft.toString() : "...");
 
   const allowedTokenBalance = useContractReader(readContracts, "DAI", "allowance", [address, vendorAddress]);
   console.log("🏵 allowedTokenBalance:", allowedTokenBalance ? ethers.utils.formatEther(allowedTokenBalance) : "...");

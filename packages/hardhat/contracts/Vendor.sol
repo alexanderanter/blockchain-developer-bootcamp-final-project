@@ -29,14 +29,18 @@ ISwapRouter public immutable swapRouter;
 
  // we will set the pool fee to 0.3% on UNISWAP
 uint24 public constant poolFee = 3000;
-
+uint256 public deadline;
   constructor(address tokenAddress, ISwapRouter _swapRouter ) public {
     yourToken = YourToken(tokenAddress);
     swapRouter = _swapRouter;
+    deadline = block.timestamp + 120 seconds;
+    //increase deadline a lot
+
     //transfer in deploy script instead
     // transferOwnership(0x0c9A1E4a543618706D31F33b643aba10E0D9048e);
+
   }
-  uint256 public deadline = block.timestamp + 50 seconds;
+
 
   //declare variable to decide if Exchange is available or not
   bool public openForExchange;
@@ -202,7 +206,7 @@ uint24 public constant poolFee = 3000;
 
 
 
-    // backup function in case Owner would die or never exchange deposited funds.
+    // Exchange function open for anyone to trigger after the deadline is over! Deadline updates each conversion
   function exchangeAll() public {
       require(timeLeft() == 0, "not enough time");
       //make sure that something has been staked so its open for exchange
@@ -237,6 +241,8 @@ uint24 public constant poolFee = 3000;
 
      //remove the converted DAI from the total available
      totalDai -= amount;
+     //extend deadline with 2 minutes after an exchange
+     deadline = block.timestamp + 120 seconds;
   }
 
 //todo fixed so that when a user have no more dai to exchange they don't credit for exchange
@@ -309,14 +315,16 @@ function setAmountToExchange(uint256 amount) public {
 }
 
 //todo
-// FIX bug caused by finish exchanging all the deposit dai and then deposit more
+
 // FIX overflow issue with amount of weth to withdraw
+// FIX bug with infura ID, figure out how to load in the .env properly for react-app
 // 2. Write tests
 // 3. Review for security issues
 // 4. Write guidelines 
 
 
 // todo in the future:
+// consider switching out the infura id with the full link from .env to constants.js
 // Add a "panic sell" btn that converts all the collected WETH to DAI to start over the DCA, valid strategy when ETH reaches new ATH
 // Make sure there is no conversion if its not enough liquidity in uniswap
 // Switch out wETH for rETH after researching liqudity on rETH *mainnet rETH: 0xae78736Cd615f374D3085123A210448E74Fc6393
