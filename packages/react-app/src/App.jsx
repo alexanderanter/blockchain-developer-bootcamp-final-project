@@ -314,6 +314,9 @@ function App(props) {
   const wethClaimable = useContractReader(readContracts, "Vendor", "wethClaimable", [address]);
   console.log("🏵 wethClaimable:", wethClaimable ? ethers.utils.formatEther(wethClaimable) : "...");
 
+  const usrDaiBalance = useContractReader(readContracts, "Vendor", "balances", [address]);
+  console.log("🏵 usrDaiBalance:", usrDaiBalance ? ethers.utils.formatEther(usrDaiBalance) : "...");
+
   const existingUser = useContractReader(readContracts, "Vendor", "existingUser", [address]);
   console.log("🏵 existingUser:", existingUser ? "yes" : "...");
 
@@ -839,21 +842,27 @@ function App(props) {
                       <Balance balance={yourTokenBalance} fontSize={64} />
                     </div>
                   </Card>
+                  <Card title="Deposited DAI ready to be converted">
+                    <div style={{ padding: 8 }}>
+                      <Balance balance={usrDaiBalance} fontSize={64} />
+                    </div>
+                  </Card>
                   <Card title="Your regular exchange amount">
                     <div style={{ padding: 8 }}>
                       <Balance balance={userAmountToExchange} fontSize={64} />
                     </div>
                   </Card>
                 </div>
-                {transferDisplay}
-                <div style={{ padding: 8, marginTop: 32 }}>
-                  <div>Contract DAI Balance:</div>
+                {/* {transferDisplay} */}
+
+                {/* <div style={{ padding: 8, marginTop: 32 }}>
+                  <div>Total Contract DAI Balance:</div>
                   <Balance balance={vendorTokenBalance} fontSize={64} />
                 </div>
                 <div style={{ padding: 8 }}>
                   <div>Contract ETH Balance:</div>
                   <Balance balance={vendorETHBalance} fontSize={64} /> ETH
-                </div>
+                </div> */}
               </Col>
             </Row>
 

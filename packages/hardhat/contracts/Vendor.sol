@@ -295,7 +295,7 @@ uint256 public deadline;
 
 
 function setAmountToExchange(uint256 amount) public {
-    require(balances[msg.sender] > amount, "your exchange amount needs to be bigger than your balance, deposit more DAI!");
+    require(balances[msg.sender] >= amount, "your exchange amount needs to be bigger than your balance, deposit more DAI!");
     uint256 previousAmount = userAmountToExchange[msg.sender];
     userAmountToExchange[msg.sender] = amount;
 
