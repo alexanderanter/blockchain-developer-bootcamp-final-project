@@ -2,7 +2,6 @@ pragma solidity =0.7.6;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./YourToken.sol";
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
@@ -10,8 +9,6 @@ import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 
 contract Vendor is Ownable {
   using SafeMath for uint256;
-
-  YourToken yourToken;
 
   uint256 public constant tokensPerEth = 100;
     //rinkeby DAI
@@ -30,11 +27,10 @@ ISwapRouter public immutable swapRouter;
  // we will set the pool fee to 0.3% on UNISWAP
 uint24 public constant poolFee = 3000;
 uint256 public deadline;
-  constructor(address tokenAddress, ISwapRouter _swapRouter ) public {
-    yourToken = YourToken(tokenAddress);
+  constructor(ISwapRouter _swapRouter ) public {
     swapRouter = _swapRouter;
+    //todo increase deadline a lot
     deadline = block.timestamp + 120 seconds;
-    //increase deadline a lot
 
     //transfer in deploy script instead
     // transferOwnership(0x0c9A1E4a543618706D31F33b643aba10E0D9048e);
