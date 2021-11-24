@@ -312,6 +312,8 @@ function setAmountToExchange(uint256 amount) public {
 
 //todo
 
+//fix bug that causes balance to be higher than deposited dai after exchange and withdraw
+
 // FIX overflow issue with amount of weth to withdraw
 // 2. Write tests
 // 3. Review for security issues
