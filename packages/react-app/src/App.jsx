@@ -285,39 +285,46 @@ function App(props) {
     "0xBC42f234b6173A288D91fA0342fF0270Ba376792",
   ]);
 
-  const vendorAddress = readContracts && readContracts.Vendor && readContracts.Vendor.address;
+  const dcaTogetherAddress = readContracts && readContracts.DcaTogether && readContracts.DcaTogether.address;
 
-  const vendorETHBalance = useBalance(localProvider, vendorAddress);
-  if (DEBUG) console.log("💵 vendorETHBalance", vendorETHBalance ? ethers.utils.formatEther(vendorETHBalance) : "...");
+  const dcaTogetherETHBalance = useBalance(localProvider, dcaTogetherAddress);
+  if (DEBUG)
+    console.log(
+      "💵 dcaTogetherETHBalance",
+      dcaTogetherETHBalance ? ethers.utils.formatEther(dcaTogetherETHBalance) : "...",
+    );
 
-  const vendorTokenBalance = useContractReader(readContracts, "DAI", "balanceOf", [vendorAddress]);
-  console.log("🏵 vendorTokenBalance:", vendorTokenBalance ? ethers.utils.formatEther(vendorTokenBalance) : "...");
+  const dcaTogetherTokenBalance = useContractReader(readContracts, "DAI", "balanceOf", [dcaTogetherAddress]);
+  console.log(
+    "🏵 dcaTogetherTokenBalance:",
+    dcaTogetherTokenBalance ? ethers.utils.formatEther(dcaTogetherTokenBalance) : "...",
+  );
 
   const yourTokenBalance = useContractReader(readContracts, "DAI", "balanceOf", [address]);
   console.log("🏵 yourTokenBalance:", yourTokenBalance ? ethers.utils.formatEther(yourTokenBalance) : "...");
 
-  const userAmountToExchange = useContractReader(readContracts, "Vendor", "userAmountToExchange", [address]);
+  const userAmountToExchange = useContractReader(readContracts, "DcaTogether", "userAmountToExchange", [address]);
   console.log(
     "🏵 userAmountToExchange :",
     userAmountToExchange ? ethers.utils.formatEther(userAmountToExchange) : "...",
   );
 
-  const tokensPerEth = useContractReader(readContracts, "Vendor", "tokensPerEth");
+  const tokensPerEth = useContractReader(readContracts, "DcaTogether", "tokensPerEth");
   console.log("🏦 tokensPerEth:", tokensPerEth ? tokensPerEth.toString() : "...");
 
-  const timeLeft = useContractReader(readContracts, "Vendor", "timeLeft");
+  const timeLeft = useContractReader(readContracts, "DcaTogether", "timeLeft");
   console.log("🏦 timeLeft:", timeLeft ? timeLeft.toString() : "...");
 
-  const allowedTokenBalance = useContractReader(readContracts, "DAI", "allowance", [address, vendorAddress]);
+  const allowedTokenBalance = useContractReader(readContracts, "DAI", "allowance", [address, dcaTogetherAddress]);
   console.log("🏵 allowedTokenBalance:", allowedTokenBalance ? ethers.utils.formatEther(allowedTokenBalance) : "...");
 
-  const wethClaimable = useContractReader(readContracts, "Vendor", "wethClaimable", [address]);
+  const wethClaimable = useContractReader(readContracts, "DcaTogether", "wethClaimable", [address]);
   console.log("🏵 wethClaimable:", wethClaimable ? ethers.utils.formatEther(wethClaimable) : "...");
 
-  const usrDaiBalance = useContractReader(readContracts, "Vendor", "balances", [address]);
+  const usrDaiBalance = useContractReader(readContracts, "DcaTogether", "balances", [address]);
   console.log("🏵 usrDaiBalance:", usrDaiBalance ? ethers.utils.formatEther(usrDaiBalance) : "...");
 
-  const existingUser = useContractReader(readContracts, "Vendor", "existingUser", [address]);
+  const existingUser = useContractReader(readContracts, "DcaTogether", "existingUser", [address]);
   console.log("🏵 existingUser:", existingUser ? "yes" : "...");
 
   // const complete = useContractReader(readContracts,"ExampleExternalContract", "completed")
@@ -529,10 +536,10 @@ function App(props) {
     );
   }
 
-  const withdrawEvents = useEventListener(readContracts, "Vendor", "Withdraw", localProvider, 1);
+  const withdrawEvents = useEventListener(readContracts, "DcaTogether", "Withdraw", localProvider, 1);
   console.log("📟 withdrawEvents:", withdrawEvents);
 
-  const depositTokensEvents = useEventListener(readContracts, "Vendor", "DepositTokens", localProvider, 1);
+  const depositTokensEvents = useEventListener(readContracts, "DcaTogether", "DepositTokens", localProvider, 1);
   console.log("📟 depositTokensEvents:", depositTokensEvents);
 
   const [tokenBuyAmount, setTokenBuyAmount] = useState();
@@ -655,7 +662,7 @@ function App(props) {
                             alert("you have nothing to withdraw, you need to wait for it to exchange!");
                           } else {
                             setWithdrawing(true);
-                            await tx(writeContracts.Vendor.withdraw());
+                            await tx(writeContracts.DcaTogether.withdraw());
                             setWithdrawing(false);
                           }
                         }}
@@ -687,7 +694,7 @@ function App(props) {
                             );
                           } else {
                             setExchaning(true);
-                            await tx(writeContracts.Vendor.exchangeAll());
+                            await tx(writeContracts.DcaTogether.exchangeAll());
                             setDisplayTimeLeft(timeLeft);
                             setExchaning(false);
                           }
@@ -747,7 +754,7 @@ function App(props) {
                                   } else {
                                     setUpdatingAmount(true);
                                     await tx(
-                                      writeContracts.Vendor.setAmountToExchange(
+                                      writeContracts.DcaTogether.setAmountToExchange(
                                         ethers.utils.parseEther(tokenExchangeAmount),
                                       ),
                                     );
@@ -783,7 +790,7 @@ function App(props) {
                     loading={depositing}
                     onClick={async () => {
                       await tx(
-                        writeContracts.YourToken.approve(vendorAddress, ethers.utils.parseEther(tokenDepositAmount)),
+                        writeContracts.YourToken.approve(dcaTogetherAddress, ethers.utils.parseEther(tokenDepositAmount)),
                       );
                     }}
                   >
@@ -803,7 +810,7 @@ function App(props) {
                               if (tokenDepositAmount > allowedTokenBalance) {
                                 await tx(
                                   writeContracts.DAI.approve(
-                                    vendorAddress,
+                                    dcaTogetherAddress,
                                     ethers.utils.parseEther(tokenDepositAmount),
                                   ),
                                 );
@@ -818,7 +825,7 @@ function App(props) {
                                 tknExchangeAmountArg = tokenExchangeAmount;
                               }
                               await tx(
-                                writeContracts.Vendor.depositTokens(
+                                writeContracts.DcaTogether.depositTokens(
                                   ethers.utils.parseEther(tokenDepositAmount),
                                   ethers.utils.parseEther(tknExchangeAmountArg),
                                 ),
@@ -857,11 +864,11 @@ function App(props) {
 
                 {/* <div style={{ padding: 8, marginTop: 32 }}>
                   <div>Total Contract DAI Balance:</div>
-                  <Balance balance={vendorTokenBalance} fontSize={64} />
+                  <Balance balance={dcaTogetherTokenBalance} fontSize={64} />
                 </div>
                 <div style={{ padding: 8 }}>
                   <div>Contract ETH Balance:</div>
-                  <Balance balance={vendorETHBalance} fontSize={64} /> ETH
+                  <Balance balance={dcaTogetherETHBalance} fontSize={64} /> ETH
                 </div> */}
               </Col>
             </Row>
@@ -920,7 +927,7 @@ function App(props) {
           </Route>
           <Route path="/contracts">
             <Contract
-              name="Vendor"
+              name="DcaTogether"
               signer={userSigner}
               provider={localProvider}
               address={address}

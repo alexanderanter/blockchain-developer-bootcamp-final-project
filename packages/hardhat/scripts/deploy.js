@@ -20,18 +20,18 @@ This deploy script is no longer in use, but is left for reference purposes!
 */
   const yourToken = await deploy("YourToken")
 
-  //Todo: deploy the vendor
-  //const vendor = await deploy("Vendor",[ yourToken.address ])
+  //Todo: deploy the dcaTogether
+  //const dcaTogether = await deploy("DcaTogether",[ yourToken.address ])
 
-  //console.log("\n 🏵  Sending all 1000 tokens to the vendor...\n");
-  //Todo: transfer the tokens to the vendor
-  //const result = await yourToken.transfer( vendor.address, utils.parseEther("1000") );
+  //console.log("\n 🏵  Sending all 1000 tokens to the dcaTogether...\n");
+  //Todo: transfer the tokens to the dcaTogether
+  //const result = await yourToken.transfer( dcaTogether.address, utils.parseEther("1000") );
 
   //const stakerContract = await deploy("Staker",[ exampleExternalContract.address ]) // <-- add in constructor args like line 14 ^^^
 
   //console.log("\n 🤹  Sending ownership to frontend address...\n")
   //ToDo: change address with your burner wallet address vvvv
-  //await vendor.transferOwnership( "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1" );
+  //await dcaTogether.transferOwnership( "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1" );
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")

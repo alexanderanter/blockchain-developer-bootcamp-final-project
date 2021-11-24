@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 
-contract Vendor is Ownable {
+contract DcaTogether is Ownable {
   using SafeMath for uint256;
 
   YourToken yourToken;
