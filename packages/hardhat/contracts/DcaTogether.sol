@@ -117,7 +117,7 @@ uint256 public deadline;
   }
 
   function withdraw() public {
-      console.log(wethClaimable[msg.sender], "CHEEECK IT");
+
 
       require(wethClaimable[msg.sender] > 0, "NOTHING TO WITHDRAW");
 
@@ -132,13 +132,8 @@ uint256 public deadline;
 
       emit Withdraw(msg.sender, wethClaimable[msg.sender]);
 
-      //if transfer success
+      //remove the withdrawed amount from the total weth
       totalWeth = totalWeth - wethClaimable[msg.sender];
-  
-      //todo fix this calculation 
-      // uint usedDaii = usedDai[msg.sender];
-      // uint newDaiBalance = balances[msg.sender] - usedDaii;
-      // balances[msg.sender] = newDaiBalance;
 
 
       usedDai[msg.sender] = 0;
@@ -219,7 +214,7 @@ uint256 public deadline;
   function exchange() public onlyOwner {
     require(totalAmountToExchange >= 0, "not enough to convert");
     require(totalAmountToExchange <= totalDai, "not enough ETH staked");
-    //todo add functionality for uniswap trade
+
     convert(totalAmountToExchange);
   }
 
@@ -244,37 +239,10 @@ uint256 public deadline;
      deadline = block.timestamp + 15 seconds;
   }
 
-//todo fixed so that when a user have no more dai to exchange they don't credit for exchange
-//todo  make sure multiple deposits work well
-  //claim based on exchangeamount
+
   function updateClaim(address user) public returns(uint) {
 
     uint daiToChange = userAmountToExchange[user];
-    // uint percentageOfPool = percent(daiToChange,totalAmountToExchange,3);
-
-
-
-//percentage of the exchange pool multiplied with the total converted dai to see what the user spent
-    // uint spentDai = percent(daiToChange,totalAmountToExchange,3) * totalConvertedDai;
-    // usedDai[user] += spentDai / 1000;
-    //calculate the spentdai % in comparison with the total converted dai
-    // uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
-
-
-    // uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
-    // claimableWeth = claimableWeth / 10000000000000000000;
-
-    //todo fix bug: When a user have converted all the dai, and exchange still happens for another wethclaimabale goes to 0!
-
-    // uint claimableWeth =  percentageOfPool * totalWeth;
-    // claimableWeth = claimableWeth / 1000;
-    // wethClaimable[user] = claimableWeth;
-
-
-    // uint claimableWeth =  percentageOfPool * _wethToAdd;
-    // claimableWeth = claimableWeth / 1000;
-    // wethClaimable[user] += claimableWeth;
-
 
     usedDai[user]  += daiToChange;
     balances[user] -= daiToChange;
@@ -293,26 +261,6 @@ uint256 public deadline;
     return claimableWeth;
  } 
   
- //claim based on deposit
-// function updateClaim(address user) public returns(uint) {
-
-
-
-//   uint daiBalance = balances[user];
-//   uint spentDai = percent(daiBalance,totalDai,3) * totalConvertedDai;
-//   usedDai[user] += spentDai / 1000;
-//   uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
-//   uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
-//   claimableWeth = claimableWeth / 10000000000000000000;
-
-
-
-//   wethClaimable[user] = claimableWeth;
-//   return claimableWeth;
-// } 
-
-
-
 function setAmountToExchange(uint256 amount) public {
     require(balances[msg.sender] >= amount, "your exchange amount needs to be bigger than your balance, deposit more DAI!");
     uint256 previousAmount = userAmountToExchange[msg.sender];
@@ -334,17 +282,15 @@ function setAmountToExchange(uint256 amount) public {
 }
 
 //todo
-
-//fix bug that causes balance to be higher than deposited dai after exchange and withdraw
-
-// FIX overflow issue with amount of weth to withdraw
+// Make sure there is no overflow issue when calculating withdraw
 // 2. Write tests
 // 3. Review for security issues
 // 4. Write guidelines 
 
 
 // todo in the future:
+// used the API that checks ETH price to calculate an amountminimum for the amount of WETH to be calculated, send in as an arg from the frontend.
 // consider switching out the infura id with the full link from .env to constants.js
-// Add a "panic sell" btn that converts all the collected WETH to DAI to start over the DCA, valid strategy when ETH reaches new ATH
+// Add a "panic sell" btn that converts all the collected WETH to DAI to start over the DCA
 // Make sure there is no conversion if its not enough liquidity in uniswap
 // Switch out wETH for rETH after researching liqudity on rETH *mainnet rETH: 0xae78736Cd615f374D3085123A210448E74Fc6393

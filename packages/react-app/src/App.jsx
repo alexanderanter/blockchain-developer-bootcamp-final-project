@@ -628,7 +628,7 @@ function App(props) {
               }}
               to="/"
             >
-              YourToken
+              DCA TOGETHER
             </Link>
           </Menu.Item>
           <Menu.Item key="/contracts">
@@ -935,14 +935,6 @@ function App(props) {
           <Route path="/contracts">
             <Contract
               name="DcaTogether"
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-            <Contract
-              name="YourToken"
               signer={userSigner}
               provider={localProvider}
               address={address}
