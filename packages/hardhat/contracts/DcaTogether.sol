@@ -135,7 +135,7 @@ uint256 public deadline;
       //remove the withdrawed amount from the total weth
       totalWeth = totalWeth - wethClaimable[msg.sender];
 
-
+      totalConvertedDai = totalConvertedDai - usedDai[msg.sender];
       usedDai[msg.sender] = 0;
       //remove the DAI that alice already used up when withdrawing
     
@@ -247,9 +247,9 @@ uint256 public deadline;
     usedDai[user]  += daiToChange;
     balances[user] -= daiToChange;
 
-    uint percentageOfPool = percent(usedDai[user],totalConvertedDai,3);
+    uint percentageOfPool = percent(usedDai[user],totalConvertedDai,1);
     uint claimableWeth =  percentageOfPool * totalWeth;
-    claimableWeth = claimableWeth / 1000;
+    claimableWeth = claimableWeth / 10;
     wethClaimable[user] = claimableWeth;
 
     //check if the new user balance is enough to amount to exchange, otherwise change exchange balance
@@ -282,6 +282,7 @@ function setAmountToExchange(uint256 amount) public {
 }
 
 //todo
+// fix bug of the allocation of claimable weth too much left in the contract when there is 2 users or more , with certain numbers...
 // Make sure there is no overflow issue when calculating withdraw
 // 2. Write tests
 // 3. Review for security issues
