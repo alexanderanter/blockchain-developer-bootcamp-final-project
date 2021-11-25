@@ -30,7 +30,7 @@ uint256 public deadline;
   constructor(ISwapRouter _swapRouter ) public {
     swapRouter = _swapRouter;
     //todo increase deadline a lot
-    deadline = block.timestamp + 120 seconds;
+    deadline = block.timestamp + 15 seconds;
 
     //transfer in deploy script instead
     // transferOwnership(0x0c9A1E4a543618706D31F33b643aba10E0D9048e);
@@ -135,12 +135,15 @@ uint256 public deadline;
       //if transfer success
       totalWeth = totalWeth - wethClaimable[msg.sender];
   
-      uint usedDaii = usedDai[msg.sender];
-      uint newDaiBalance = balances[msg.sender] - usedDaii;
+      //todo fix this calculation 
+      // uint usedDaii = usedDai[msg.sender];
+      // uint newDaiBalance = balances[msg.sender] - usedDaii;
+      // balances[msg.sender] = newDaiBalance;
+
 
       usedDai[msg.sender] = 0;
       //remove the DAI that alice already used up when withdrawing
-      balances[msg.sender] = newDaiBalance;
+    
       // reset the wethclaimable to 0 as Alice withdrawn all
       wethClaimable[msg.sender] = 0;
 
@@ -168,7 +171,7 @@ uint256 public deadline;
       balances[msg.sender] += amount;
       //add user if they don't exist
       if (existingUser[msg.sender] == false){
-        require(amount > amountToExchange, "Your exchange amount must be larger than your deposit!");
+        require(amount > amountToExchange, "Your exchange amount must be smaller than your deposit!");
         existingUser[msg.sender] = true;
         addressIndexes.push(msg.sender);
 
@@ -222,7 +225,7 @@ uint256 public deadline;
 
   function convert(uint amount) private {
 
-    uint wethToAdd = swapExactInputSingle(amount);
+    uint256 wethToAdd = swapExactInputSingle(amount);
     //require( success, "FAILED");
     
     totalConvertedDai += amount;
@@ -237,8 +240,8 @@ uint256 public deadline;
 
      //remove the converted DAI from the total available
      totalDai -= amount;
-     //extend deadline with 2 minutes after an exchange
-     deadline = block.timestamp + 120 seconds;
+     //extend deadline with 15 sec after an exchange
+     deadline = block.timestamp + 15 seconds;
   }
 
 //todo fixed so that when a user have no more dai to exchange they don't credit for exchange
@@ -247,20 +250,40 @@ uint256 public deadline;
   function updateClaim(address user) public returns(uint) {
 
     uint daiToChange = userAmountToExchange[user];
-    
+    // uint percentageOfPool = percent(daiToChange,totalAmountToExchange,3);
+
+
+
 //percentage of the exchange pool multiplied with the total converted dai to see what the user spent
-    uint spentDai = percent(daiToChange,totalAmountToExchange,3) * totalConvertedDai;
-    usedDai[user] += spentDai / 1000;
+    // uint spentDai = percent(daiToChange,totalAmountToExchange,3) * totalConvertedDai;
+    // usedDai[user] += spentDai / 1000;
     //calculate the spentdai % in comparison with the total converted dai
-    uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
-    uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
-    claimableWeth = claimableWeth / 10000000000000000000;
-  
-  
-  
+    // uint percentageOfPool = percent(spentDai,totalConvertedDai,3);
+
+
+    // uint claimableWeth =  percentageOfPool * totalWeth * 10000000000000;
+    // claimableWeth = claimableWeth / 10000000000000000000;
+
+    //todo fix bug: When a user have converted all the dai, and exchange still happens for another wethclaimabale goes to 0!
+
+    // uint claimableWeth =  percentageOfPool * totalWeth;
+    // claimableWeth = claimableWeth / 1000;
+    // wethClaimable[user] = claimableWeth;
+
+
+    // uint claimableWeth =  percentageOfPool * _wethToAdd;
+    // claimableWeth = claimableWeth / 1000;
+    // wethClaimable[user] += claimableWeth;
+
+
+    usedDai[user]  += daiToChange;
+    balances[user] -= daiToChange;
+
+    uint percentageOfPool = percent(usedDai[user],totalConvertedDai,3);
+    uint claimableWeth =  percentageOfPool * totalWeth;
+    claimableWeth = claimableWeth / 1000;
     wethClaimable[user] = claimableWeth;
 
-    balances[user] -= daiToChange;
     //check if the new user balance is enough to amount to exchange, otherwise change exchange balance
     if(balances[user] < userAmountToExchange[user]){
       uint256 previousAmount = userAmountToExchange[user];

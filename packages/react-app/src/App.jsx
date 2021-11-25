@@ -309,6 +309,8 @@ function App(props) {
     userAmountToExchange ? ethers.utils.formatEther(userAmountToExchange) : "...",
   );
 
+  const usedDai = useContractReader(readContracts, "DcaTogether", "usedDai", [address]);
+
   const tokensPerEth = useContractReader(readContracts, "DcaTogether", "tokensPerEth");
   console.log("🏦 tokensPerEth:", tokensPerEth ? tokensPerEth.toString() : "...");
 
@@ -857,6 +859,11 @@ function App(props) {
                   <Card title="Your regular exchange amount">
                     <div style={{ padding: 8 }}>
                       <Balance balance={userAmountToExchange} fontSize={64} />
+                    </div>
+                  </Card>
+                  <Card title="DAI thats been converted">
+                    <div style={{ padding: 8 }}>
+                      <Balance balance={usedDai} fontSize={64} />
                     </div>
                   </Card>
                 </div>
