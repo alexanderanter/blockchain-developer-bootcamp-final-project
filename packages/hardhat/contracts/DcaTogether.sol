@@ -247,9 +247,9 @@ uint256 public deadline;
     usedDai[user]  += daiToChange;
     balances[user] -= daiToChange;
 
-    uint percentageOfPool = percent(usedDai[user],totalConvertedDai,1);
+    uint percentageOfPool = percent(usedDai[user],totalConvertedDai,3);
     uint claimableWeth =  percentageOfPool * totalWeth;
-    claimableWeth = claimableWeth / 10;
+    claimableWeth = claimableWeth / 1000;
     wethClaimable[user] = claimableWeth;
 
     //check if the new user balance is enough to amount to exchange, otherwise change exchange balance
