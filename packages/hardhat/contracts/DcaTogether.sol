@@ -110,6 +110,7 @@ uint256 public deadline;
       amountOut = swapRouter.exactInputSingle(params);
   }
 
+  //todo review and remove as its not used
   function transfer(address to, uint256 amount) public {
     require( balances[msg.sender] >= amount, "NOT ENOUGH");
     balances[msg.sender] -= amount;
