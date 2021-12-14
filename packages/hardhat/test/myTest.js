@@ -17,13 +17,16 @@ describe("My Dapp", function () {
     });
     describe("depositTokens()", function () {
       it("Should be able to deposit", async function () {
+        const [owner, addr1] = await ethers.getSigners();
         const amountToDeposit = ethers.utils.parseEther("200");
         const amountToExchange = ethers.utils.parseEther("20");
         await myContract.depositTokens(amountToDeposit, amountToExchange);
-        // expect(await myContract.totalDai.to.equal(amountToDeposit));
 
         //todo replace totalDai with the user thats calling balance
         expect(await myContract.totalDai()).to.equal(amountToDeposit);
+        // await myContract.balances(addr1);
+
+        // expect(await myContract.balances(addr1)).to.equal(amountToDeposit);
       });
     });
     // describe("withdraw()", function () {
