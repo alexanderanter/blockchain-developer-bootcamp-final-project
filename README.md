@@ -8,10 +8,61 @@ The Problem: Crypto is volatile, GAS fees are high, Centralized exchanges is sim
 Solution: An affordable way to buy up crypto with small amounts on a regular(semi-regular) basis.
 
 Buying small amounts of crypto on a regular basis costs too much in gas fees its not worth it,
-by pooling together with others so the small purchases becomes big ones, users can save a lot on gas fees and also, instead of 100 people remembering to
+by pooling together a others so the small purchases becomes big ones, users can save a lot on gas fees and also, instead of 100 people remembering to
 make 100 transactions every month, 1 user can do it for all 100.
 
 # 🏄‍♂️ Quick Start
+
+Option 1:
+use deployed version at http://planty-ray.surge.sh/
+
+1. Login to metamask and make sure you are on RINKEBY and have some RINKEBY ETH.
+
+2. Get some test DAI:
+   option 1A:
+   Go to https://app.uniswap.org/#/swap, click on select a token, paste in:
+   0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa (Rinkeby test DAI), then swap your rinkeby ETH for some Rinkeby DAI.
+   option 1B:
+   go to https://app.compound.finance/ , connect your wallet, click on DAI under Supply Markets, then choose the "Withdraw" tab, then at the bottom of the popup,
+   click on "Faucet" and accept the transaction from metamask.
+
+3. Go to http://planty-ray.surge.sh/ connect metamask wallet on Rinkeby that have some Rinkeby ETH and Rinkeby DAI
+4. Use the dapp to make a big deposit of DAI and then let it be converted with other users on a regular basis to WETH that can be withdrawn.
+
+Option 2:
+
+Run locally but with contracts on rinkeby
+
+> copy sample.env in react-app and rename copy .env, and add your own infura credentials for rinkeby.
+
+copy example.env in hardhat and rename the copy .env and add your own infura credentials for rinkeby.
+
+create a new metamask account, save the seed,
+create a mnemonic.txt file in hardhat folder , copy in the seed of your account with rinkeby, fill the new account with rinkeby eth.
+
+```bash
+yarn install
+```
+
+> in a second terminal window, start your 📱 frontend:
+
+```bash
+yarn start
+```
+
+> in a third terminal window, 🛰 deploy your contract:
+
+```bash
+yarn deploy
+```
+
+to test:
+
+```bash
+yarn test
+```
+
+Option 3: Run on local chain
 
 Prerequisites: [Node](https://nodejs.org/en/download/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
 
@@ -22,6 +73,7 @@ yarn install
 yarn chain
 ```
 
+> change to work with localhost instead of rinkeby //need more details here
 > in a second terminal window, start your 📱 frontend:
 
 ```bash
